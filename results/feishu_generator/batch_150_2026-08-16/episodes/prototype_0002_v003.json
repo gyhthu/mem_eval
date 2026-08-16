@@ -1,0 +1,460 @@
+{
+  "episode_id": "ep_prototype_0002_v003",
+  "scenario": "客户续约风险与折扣审批：无缺陷单轮复核直接收口",
+  "start_time": "2026-09-18T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0002",
+    "source_task_ids": [
+      "task_0004",
+      "task_0008"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 3；使用“客户续约风险与折扣审批”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "客户成功经理",
+      "responsibility": "提交客户续约折扣申请并说明续约背景和客户诉求",
+      "knowledge_boundary": "知道续约客户信息、目标折扣率和合同到期日；不知道折扣规则校验的具体阈值和财务毛利底线"
+    },
+    {
+      "id": "u_reviewer",
+      "kind": "human",
+      "role": "风控复核员",
+      "responsibility": "对折扣申请执行规则复核，确认是否存在待处置项并完成最终核验",
+      "knowledge_boundary": "知道复核清单、风险等级和规则校验结果；不知道财务毛利底线与最终审批权"
+    },
+    {
+      "id": "u_finance",
+      "kind": "human",
+      "role": "财务负责人",
+      "responsibility": "审批折扣率，确认财务边际可接受并执行最终收口",
+      "knowledge_boundary": "知道续约客户毛利和折扣率底线；不参与逐项规则核验，不知道规则校验过程细节"
+    },
+    {
+      "id": "bot_validator",
+      "kind": "bot",
+      "role": "规则校验 Bot",
+      "responsibility": "执行风险等级、折扣上限、合同一致性三项规则校验并返回结果",
+      "knowledge_boundary": "可访问规则库和审批单数据，可输出当前校验结果；不知道人工审批意见和财务毛利底线"
+    },
+    {
+      "id": "bot_workflow",
+      "kind": "bot",
+      "role": "审批流 Bot",
+      "responsibility": "维护审批单状态并生成收口记录",
+      "knowledge_boundary": "可读取审批节点和状态字段，可更新审批状态；不知道规则校验细节"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_renewal",
+      "title": "DK-2026-0917 续约折扣风险复核"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "renewal_submission",
+      "prompt_type": "new_topic",
+      "thread_id": "t_renewal",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "u_reviewer"
+      ],
+      "truth": {
+        "submission_id": "DK-2026-0917",
+        "requested_discount": 75,
+        "contract_expiry": "2026-09-30",
+        "status": "待复核"
+      },
+      "communication_goal": "客户成功经理提交续约折扣申请，风控复核员确认进入单轮复核",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "pending_items_question",
+          "value": "待校验"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "requested_discount",
+          "value": 75
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "validation_bot_response",
+      "prompt_type": "bot_response",
+      "thread_id": "t_renewal",
+      "offset_minutes": 15,
+      "actors": [
+        "u_reviewer",
+        "bot_validator"
+      ],
+      "truth": {
+        "trigger": "风控复核员请求执行三项规则校验",
+        "risk_level_check": "pass",
+        "discount_limit_check": "pass",
+        "contract_consistency_check": "pass",
+        "pending_items_count": 0,
+        "max_allowed_discount": 80
+      },
+      "communication_goal": "规则校验Bot执行三项校验并返回全部通过、无待处置项",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "validation_summary",
+          "value": "all_passed"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "pending_items_count",
+          "value": 0
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "pending_items_question",
+          "value": "无待处置项"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "no_pending_confirmation",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_renewal",
+      "offset_minutes": 30,
+      "actors": [
+        "u_reviewer",
+        "u_finance"
+      ],
+      "truth": {
+        "review_conclusion": "无待处置项",
+        "final_verifier": "u_reviewer",
+        "finance_margin_acceptable": true,
+        "status": "待最终审批"
+      },
+      "communication_goal": "风控复核员在Bot校验结果下确认无待处置项，财务负责人确认折扣后毛利可接受",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "final_verifier",
+          "value": "u_reviewer"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "finance_margin_acceptable",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_approval_question",
+          "value": "待最终审批"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "direct_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_renewal",
+      "offset_minutes": 45,
+      "actors": [
+        "u_finance",
+        "bot_workflow",
+        "u_owner"
+      ],
+      "truth": {
+        "final_status": "已收口",
+        "direct_close": true,
+        "approver": "u_finance",
+        "submission_id": "DK-2026-0917"
+      },
+      "communication_goal": "财务负责人确认直接收口，审批流Bot更新审批单状态，客户成功经理知悉结果",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "final_status",
+          "value": "已收口"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "direct_close",
+          "value": true
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "workflow_status",
+          "value": "已收口"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "notify_owner",
+          "value": "u_owner"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_approval_question",
+          "value": "已确认"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "批次是否直接收口",
+      "answer_path": "event:ev_04.truth.direct_close",
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "是否存在待处置项",
+      "answer_path": "event:ev_02.truth.pending_items_count",
+      "evidence_event_ids": [
+        "ev_02"
+      ]
+    },
+    {
+      "hook": "谁完成最终核验",
+      "answer_path": "event:ev_03.truth.final_verifier",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-18T09:00:00+08:00",
+      "content": "提交续约折扣申请 DK-2026-0917，客户要求 75 折，合同 9 月 30 号到期，麻烦复核一下",
+      "reply_to": null,
+      "mentions": [
+        "u_reviewer"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-18T09:01:00+08:00",
+      "content": "收到，DK-2026-0917 进入单轮复核",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-18T09:02:00+08:00",
+      "content": "这个客户比较急，能尽快出结果吗？",
+      "reply_to": "m_0002",
+      "mentions": [
+        "u_reviewer"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_renewal",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-18T09:15:00+08:00",
+      "content": "@规则校验Bot 帮我看下 DK-2026-0917 的三项规则校验，客户急等结果。",
+      "reply_to": "m_0003",
+      "mentions": [
+        "bot_validator"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_renewal",
+      "author_id": "bot_validator",
+      "timestamp": "2026-09-18T09:16:00+08:00",
+      "content": "三项校验均通过：风险等级 pass、折扣上限 pass、合同一致性 pass；无待处置项。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_renewal",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-18T09:17:00+08:00",
+      "content": "行，没有待处置项，单轮复核在此收口。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_renewal",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-18T09:30:00+08:00",
+      "content": "@u_finance DK-2026-0917 规则校验都过了，剩下你这边确认下毛利，客户还在等。",
+      "reply_to": "m_0006",
+      "mentions": [
+        "u_finance"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_renewal",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-18T09:31:00+08:00",
+      "content": "看了下，75折后的毛利还行，确认可接受，推最终审批吧。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_renewal",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-18T09:32:00+08:00",
+      "content": "好，那就待最终审批。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-18T09:45:00+08:00",
+      "content": "直接收口吧，@bot_workflow 把 DK-2026-0917 状态改为已收口。",
+      "reply_to": "m_0009",
+      "mentions": [
+        "bot_workflow"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "bot_workflow",
+      "timestamp": "2026-09-18T09:46:00+08:00",
+      "content": "已更新 DK-2026-0917 审批状态为已收口。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-18T09:47:00+08:00",
+      "content": "好的，我同步客户结果。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "requested_discount": 75,
+      "pending_items_count": 0,
+      "final_verifier": "u_reviewer",
+      "direct_close": true
+    },
+    "decisions": {
+      "finance_margin_acceptable": true,
+      "final_status": "已收口"
+    },
+    "open_questions": {
+      "pending_items_question": "无待处置项",
+      "final_approval_question": "已确认"
+    },
+    "commitments": {
+      "notify_owner": "u_owner"
+    },
+    "bot_outputs": {
+      "validation_summary": "all_passed",
+      "workflow_status": "已收口"
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

@@ -1,0 +1,702 @@
+{
+  "episode_id": "ep_prototype_0007_v002",
+  "scenario": "会员权益变更与客服通知：客服知识库中权益命名歧义导致回复口径不一，统一术语后的全量测试与机制讲解",
+  "start_time": "2026-09-15T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "客服主管",
+      "responsibility": "审核客服知识库术语变更，确认客服回复口径，批准命名方案。",
+      "knowledge_boundary": "熟悉客服流程和知识库整体结构，但不掌握技术实现细节和测试用例。"
+    },
+    {
+      "id": "u_agent",
+      "kind": "human",
+      "role": "客服专员",
+      "responsibility": "使用知识库回答客户权益问题，发现并反馈术语歧义。",
+      "knowledge_boundary": "熟悉日常客服话术，但不了解系统字段映射和规则评分算法。"
+    },
+    {
+      "id": "u_product",
+      "kind": "human",
+      "role": "产品经理",
+      "responsibility": "定义会员权益业务规则，决定术语标准。",
+      "knowledge_boundary": "掌握权益规则设计，不参与测试执行细节。"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "研发工程师",
+      "responsibility": "实施知识库字段重命名和别名映射，支持测试环境搭建。",
+      "knowledge_boundary": "了解技术实现和数据结构，不掌握客服评分指标具体权重。"
+    },
+    {
+      "id": "u_qa",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "设计并执行全量客服通知模板测试，输出测试结论。",
+      "knowledge_boundary": "了解测试范围和用例，不参与术语决策。"
+    },
+    {
+      "id": "bot_knowledge",
+      "kind": "bot",
+      "role": "知识库 Bot",
+      "responsibility": "维护术语表，执行术语更新，提供规则分类和评分指标查询。",
+      "knowledge_boundary": "只能访问知识库中已授权的术语表、规则文档和评分指标，不感知未完成的测试任务。"
+    },
+    {
+      "id": "bot_test",
+      "kind": "bot",
+      "role": "测试 Bot",
+      "responsibility": "自动执行全量测试用例并返回通过率。",
+      "knowledge_boundary": "只能访问测试用例集和测试环境，不掌握业务术语的决策原因。"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_rename",
+      "title": "权益命名歧义梳理"
+    },
+    {
+      "thread_id": "t_test",
+      "title": "客服通知全量测试"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "ambiguity_report",
+      "prompt_type": "new_topic",
+      "thread_id": "t_rename",
+      "offset_minutes": 0,
+      "actors": [
+        "u_agent",
+        "u_owner"
+      ],
+      "truth": {
+        "ambiguous_terms": [
+          "积分有效期",
+          "积分失效日"
+        ],
+        "reported_scope": "生日特惠权益说明",
+        "status": "待确认"
+      },
+      "communication_goal": "客服专员在知识库中发现两个名称指向同一权益字段，向主管报告存在歧义，可能误导客服答复。",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "naming_conflict",
+          "value": "待确认"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "rename_decision",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_rename",
+      "offset_minutes": 30,
+      "actors": [
+        "u_product",
+        "u_dev",
+        "u_owner",
+        "u_agent"
+      ],
+      "truth": {
+        "old_terms": [
+          "积分有效期",
+          "积分失效日"
+        ],
+        "standard_term": "积分有效截止日",
+        "rationale": "两个名称指向同一字段，需要统一术语避免客服口径不一致",
+        "decision": "采用标准名称",
+        "status": "已确认"
+      },
+      "communication_goal": "产品经理指出两个名称本质相同，纠正此前的命名分歧，决定统一为“积分有效截止日”，研发确认变更范围。",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "standard_term",
+          "value": "积分有效截止日"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "rename_decision",
+          "value": "统一使用标准名称"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "naming_ambiguity",
+          "value": "已纠正"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "naming_conflict",
+          "value": "已解决"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "term_update",
+      "prompt_type": "bot_response",
+      "thread_id": "t_rename",
+      "offset_minutes": 45,
+      "actors": [
+        "u_owner",
+        "bot_knowledge"
+      ],
+      "truth": {
+        "updated_term": "积分有效截止日",
+        "aliases": [
+          "积分有效期",
+          "积分失效日"
+        ],
+        "target_docs": [
+          "生日特惠权益说明",
+          "积分规则FAQ"
+        ],
+        "status": "已更新"
+      },
+      "communication_goal": "客服主管指示知识库Bot执行重命名，Bot确认术语已更新并保留旧称作为别名，保证搜索兼容。",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "rename_result",
+          "value": "已更新为积分有效截止日"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "aliases",
+          "value": [
+            "积分有效期",
+            "积分失效日"
+          ]
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "test_required",
+          "value": "待执行全量测试"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "test_start",
+      "prompt_type": "new_topic",
+      "thread_id": "t_test",
+      "offset_minutes": 60,
+      "actors": [
+        "u_qa",
+        "u_dev",
+        "bot_test"
+      ],
+      "truth": {
+        "test_scope": "全量客服通知模板",
+        "test_cases": 128,
+        "status": "进行中"
+      },
+      "communication_goal": "测试工程师发起全量测试，确保命名替换后所有客服通知模板正常渲染，研发提供测试环境信息。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "test_status",
+          "value": "进行中"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "test_pass",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_test",
+      "offset_minutes": 120,
+      "actors": [
+        "bot_test",
+        "u_qa",
+        "u_dev",
+        "u_product"
+      ],
+      "truth": {
+        "total_cases": 128,
+        "passed_cases": 128,
+        "failed_cases": 0,
+        "test_result": "全部通过",
+        "status": "通过"
+      },
+      "communication_goal": "测试Bot报告全量测试全部通过，测试工程师确认，产品经理和研发共同确认可以发布。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "test_result",
+          "value": "全部通过"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "release_ready",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "test_status",
+          "value": "已通过"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_06",
+      "type": "mechanism_explanation",
+      "prompt_type": "bot_response",
+      "thread_id": "t_rename",
+      "offset_minutes": 180,
+      "actors": [
+        "bot_knowledge",
+        "u_owner",
+        "u_agent"
+      ],
+      "truth": {
+        "classification_rule": "权益按用户等级和权益类型分为三档：基础权益、成长权益、高价值权益",
+        "scoring_metrics": [
+          "客服响应时效",
+          "权益解释准确率",
+          "客户满意度"
+        ],
+        "aliases": [
+          "积分有效期",
+          "积分失效日"
+        ],
+        "status": "已完成"
+      },
+      "communication_goal": "知识库Bot向客服团队讲解权益分类规则和客服评分机制，并说明标准化命名后的搜索匹配逻辑，客服专员确认理解。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "classification_rule",
+          "value": "按用户等级和权益类型分为三档"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "scoring_metrics",
+          "value": [
+            "客服响应时效",
+            "权益解释准确率",
+            "客户满意度"
+          ]
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "agent_training",
+          "value": "客服需按新术语回复"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "哪些命名被修改",
+      "answer_path": "event:ev_03.truth.updated_term",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "测试是否通过",
+      "answer_path": "event:ev_05.truth.status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "规则分类机制如何运作",
+      "answer_path": "event:ev_06.truth.classification_rule",
+      "evidence_event_ids": [
+        "ev_06"
+      ]
+    },
+    {
+      "hook": "评分指标有哪些",
+      "answer_path": "event:ev_06.truth.scoring_metrics",
+      "evidence_event_ids": [
+        "ev_06"
+      ]
+    }
+  ],
+  "prototype_trace": {
+    "prototype_id": "prototype_0007",
+    "source_task_ids": [
+      "task_0020"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "terminology_ambiguity",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 2；使用“会员权益变更与客服通知”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_rename",
+      "author_id": "u_agent",
+      "timestamp": "2026-09-15T09:00:00+08:00",
+      "content": "生日特惠权益说明里，“积分有效期”和“积分失效日”两个叫法，看着像同一个东西？",
+      "reply_to": null,
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_rename",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-15T09:01:00+08:00",
+      "content": "你是在知识库哪个页面看到的？有点奇怪。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_rename",
+      "author_id": "u_agent",
+      "timestamp": "2026-09-15T09:02:00+08:00",
+      "content": "就生日特惠那个权益说明文档里，两个词挨着出现，我怕客服按不同叫法回复就乱了。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_rename",
+      "author_id": "u_product",
+      "timestamp": "2026-09-15T09:30:00+08:00",
+      "content": "不是“看着像”——积分有效期和积分失效日就是同一个字段。之前这两个叫法都在用，客服按不同词查就会答得不一样。建议统一叫“积分有效截止日”，后面知识库都按这个口径。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_rename",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-15T09:31:00+08:00",
+      "content": "那就是要把知识库里所有“积分有效期”和“积分失效日”的引用都改成“积分有效截止日”？我先列一下涉及哪些页面。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_rename",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-15T09:32:00+08:00",
+      "content": "对，统一用“积分有效截止日”。客服这边我来同步，之后都按这个说。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_02",
+      "thread_id": "t_rename",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-15T09:33:00+08:00",
+      "content": "好，那我按这个标准名排查，改完把涉及范围同步群里。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_rename",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-15T09:45:00+08:00",
+      "content": "@bot_knowledge 把“积分有效期”和“积分失效日”统一改成“积分有效截止日”，旧称保留为别名，方便搜索。",
+      "reply_to": null,
+      "mentions": [
+        "bot_knowledge"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_rename",
+      "author_id": "bot_knowledge",
+      "timestamp": "2026-09-15T09:46:00+08:00",
+      "content": "已更新。标准名“积分有效截止日”，“积分有效期”“积分失效日”设为别名；生日特惠权益说明和积分规则FAQ已同步。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_rename",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-15T09:47:00+08:00",
+      "content": "好，客服这边我来同步口径。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-15T10:00:00+08:00",
+      "content": "全量客服通知模板的用例我整理好了，128条，准备开始跑。测试环境还是用 staging 吧？",
+      "reply_to": null,
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-15T10:01:00+08:00",
+      "content": "对，用 staging。标准名和别名都已经同步过去了，可以直接跑。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-15T10:02:00+08:00",
+      "content": "行，那我先跑着，有渲染问题发这里。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_test",
+      "author_id": "bot_test",
+      "timestamp": "2026-09-15T11:00:00+08:00",
+      "content": "全量测试跑完了：128/128通过，0失败。@u_qa @u_dev @u_product",
+      "reply_to": "m_0013",
+      "mentions": [
+        "u_qa",
+        "u_dev",
+        "u_product"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_test",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-15T11:01:00+08:00",
+      "content": "确认，测试结果没问题，可以走发布。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_test",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-15T11:02:00+08:00",
+      "content": "好的，发布没问题。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_05",
+      "thread_id": "t_test",
+      "author_id": "u_product",
+      "timestamp": "2026-09-15T11:03:00+08:00",
+      "content": "同意发布。客服通知模板统一用“积分有效截止日”，之前的说法都作废。",
+      "reply_to": "m_0016",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0018",
+      "event_id": "ev_06",
+      "thread_id": "t_rename",
+      "author_id": "u_agent",
+      "timestamp": "2026-09-15T12:00:00+08:00",
+      "content": "@bot_knowledge 权益分类和客服评分规则具体是什么？另外客户那边说“积分有效期”还能正常搜到吗？",
+      "reply_to": null,
+      "mentions": [
+        "bot_knowledge"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0019",
+      "event_id": "ev_06",
+      "thread_id": "t_rename",
+      "author_id": "bot_knowledge",
+      "timestamp": "2026-09-15T12:01:00+08:00",
+      "content": "权益按用户等级和权益类型分三档：基础权益、成长权益、高价值权益。客服评分看响应时效、权益解释准确率、客户满意度。搜索时“积分有效期”“积分失效日”会作为别名匹配到标准名“积分有效截止日”，可以正常搜到。",
+      "reply_to": "m_0018",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0020",
+      "event_id": "ev_06",
+      "thread_id": "t_rename",
+      "author_id": "u_agent",
+      "timestamp": "2026-09-15T12:02:00+08:00",
+      "content": "明白了，那客户说“积分失效日”也一样能匹配吧？我统一按“积分有效截止日”回复。",
+      "reply_to": "m_0019",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0021",
+      "event_id": "ev_06",
+      "thread_id": "t_rename",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-15T12:03:00+08:00",
+      "content": "对，别名词都匹配到标准名。客服口径统一用“积分有效截止日”，大家按这个来。",
+      "reply_to": "m_0020",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "standard_term": "积分有效截止日",
+      "aliases": [
+        "积分有效期",
+        "积分失效日"
+      ],
+      "test_result": "全部通过",
+      "scoring_metrics": [
+        "客服响应时效",
+        "权益解释准确率",
+        "客户满意度"
+      ]
+    },
+    "decisions": {
+      "rename_decision": "统一使用标准名称",
+      "release_ready": true
+    },
+    "open_questions": {
+      "naming_conflict": "已解决",
+      "test_status": "已通过"
+    },
+    "commitments": {
+      "test_required": "待执行全量测试",
+      "agent_training": "客服需按新术语回复"
+    },
+    "bot_outputs": {
+      "rename_result": "已更新为积分有效截止日",
+      "classification_rule": "按用户等级和权益类型分为三档"
+    },
+    "corrections": {
+      "naming_ambiguity": "已纠正"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

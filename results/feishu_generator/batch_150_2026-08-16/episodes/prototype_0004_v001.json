@@ -1,0 +1,599 @@
+{
+  "episode_id": "ep_prototype_0004_v001",
+  "scenario": "招聘录用自动初审机制因假绿风险且零使用被用户拍板移除",
+  "start_time": "2026-09-04T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_recruiter",
+      "kind": "human",
+      "role": "招聘经理",
+      "responsibility": "提出招聘流程优化需求，确认业务规则，参与风险评估",
+      "knowledge_boundary": "熟悉招聘业务场景和候选人评分标准，不了解系统具体实现和后台统计数据"
+    },
+    {
+      "id": "u_product",
+      "kind": "human",
+      "role": "HR系统产品经理",
+      "responsibility": "负责需求的澄清、方案确认和验收",
+      "knowledge_boundary": "了解HR系统功能范围和业务需求，不清楚代码实现细节和数据统计逻辑"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "后端研发",
+      "responsibility": "负责自动初审机制的设计、实现和修改",
+      "knowledge_boundary": "掌握系统架构和代码实现，不主动获取使用统计数据，不了解最终业务决策"
+    },
+    {
+      "id": "u_qa",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "负责功能测试、风险识别和数据核查",
+      "knowledge_boundary": "了解系统逻辑和测试数据，能够解读统计数据，不决定功能去留"
+    },
+    {
+      "id": "u_director",
+      "kind": "human",
+      "role": "招聘总监",
+      "responsibility": "对招聘流程制度进行最终决策，审批流程变更",
+      "knowledge_boundary": "掌握业务风险和决策权，不参与日常技术实现和数据查询"
+    },
+    {
+      "id": "bot_data",
+      "kind": "bot",
+      "role": "数据 Bot",
+      "responsibility": "根据请求查询系统日志和使用统计并返回结果",
+      "knowledge_boundary": "仅能访问统计数据表，不理解业务语义，不掌握流程配置"
+    },
+    {
+      "id": "bot_recruit",
+      "kind": "bot",
+      "role": "招聘流程 Bot",
+      "responsibility": "维护招聘流程状态和审批流配置，执行已确认的变更",
+      "knowledge_boundary": "只了解当前流程配置和已批准的操作指令，不掌握统计数据和风险分析"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_req",
+      "title": "自动初审机制需求与实现"
+    },
+    {
+      "thread_id": "t_risk",
+      "title": "自动初审机制风险评估"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "requirement_clarification",
+      "prompt_type": "new_topic",
+      "thread_id": "t_req",
+      "offset_minutes": 0,
+      "actors": [
+        "u_recruiter",
+        "u_product"
+      ],
+      "truth": {
+        "requirement": "候选人面试评分达4.5分自动通过初审",
+        "target_phase": "初审通过",
+        "status": "待确认"
+      },
+      "communication_goal": "招聘经理提出自动初审需求，产品经理澄清通过指初审而非终审，双方确认待澄清点",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "mechanism_status",
+          "value": "待确认"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "implementation_update",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_req",
+      "offset_minutes": 30,
+      "actors": [
+        "u_dev",
+        "u_product"
+      ],
+      "truth": {
+        "mechanism": "自动初审通过",
+        "integration": "审批流状态机自动完成初审",
+        "implementation_status": "已上线",
+        "status": "已实现"
+      },
+      "communication_goal": "研发在需求线程中回复已联动修改审批流状态机并上线，产品经理确认",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "mechanism",
+          "value": "自动初审通过"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "integration",
+          "value": "审批流状态机自动完成初审"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "dev_owner",
+          "value": "u_dev"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "usage_query",
+      "prompt_type": "bot_response",
+      "thread_id": "t_risk",
+      "offset_minutes": 120,
+      "actors": [
+        "u_qa",
+        "bot_data"
+      ],
+      "truth": {
+        "trigger": "测试工程师请求统计自动初审机制使用次数",
+        "usage_count": 0,
+        "data_window": "上线至今30天",
+        "bot_correctness": true
+      },
+      "communication_goal": "测试工程师发起风险调查，数据Bot返回自动初审机制上线30天内触发次数为0",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "usage_count",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "risk_correction",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_risk",
+      "offset_minutes": 180,
+      "actors": [
+        "u_qa",
+        "u_dev",
+        "u_recruiter"
+      ],
+      "truth": {
+        "risk_type": "假绿",
+        "cause": "评分为空时默认通过初审",
+        "usage_count_confirmed": 0,
+        "risk_accepted": true
+      },
+      "communication_goal": "测试工程师指出自动初审机制存在假绿风险且零使用，纠正'机制有效'的假设，研发确认原因，招聘经理确认风险",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "risk_type",
+          "value": "假绿"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "cause",
+          "value": "评分为空时默认通过"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "usage_count",
+          "value": 0
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "mechanism_assumption",
+          "value": "机制有效 → 存在假绿风险"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "remove_decision",
+          "value": "待拍板"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "removal_decision",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_risk",
+      "offset_minutes": 240,
+      "actors": [
+        "u_director",
+        "u_recruiter",
+        "u_product",
+        "u_dev",
+        "bot_recruit"
+      ],
+      "truth": {
+        "decider": "u_director",
+        "decision": "移除自动初审机制",
+        "reason": "假绿风险且零使用",
+        "final_rules": "所有录用审批由招聘经理手动操作，评分仅作参考",
+        "implementation_synced": true,
+        "status": "已收敛"
+      },
+      "communication_goal": "招聘总监拍板移除自动初审机制，确认最终规则集合，研发确认已同步修改配置，招聘流程Bot更新流程状态",
+      "message_count": {
+        "min": 4,
+        "max": 6
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "remove_mechanism",
+          "value": true
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "decider",
+          "value": "u_director"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "reason",
+          "value": "假绿风险且零使用"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "final_rules",
+          "value": "所有录用审批由招聘经理手动操作，评分仅作参考"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "implementation_synced",
+          "value": true
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "previous_assumption",
+          "value": "自动机制有效"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "最终规则集合是什么",
+      "answer_path": "event:ev_05.truth.final_rules",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "谁拍板移除机制",
+      "answer_path": "event:ev_05.truth.decider",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "移除的原因是什么",
+      "answer_path": "event:ev_05.truth.reason",
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "实现是否已同步修改",
+      "answer_path": "event:ev_05.truth.implementation_synced",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "prototype_trace": {
+    "prototype_id": "prototype_0004",
+    "source_task_ids": [
+      "task_0016"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility",
+      "implicit_user_reference"
+    ],
+    "variation_hint": "变体编号 1；使用“招聘面试流程与录用审批”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-04T09:00:00+08:00",
+      "content": "咱们现在初筛通过都是人工判，有没有可能系统直接按评分自动过？比如面试评分到4.5就给初审通过？",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_product",
+      "timestamp": "2026-09-04T09:01:00+08:00",
+      "content": "你说的是初审通过吧？不是终审直接过？",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-04T09:02:00+08:00",
+      "content": "对，就是初审通过，终审还是得人工评。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_req",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-04T09:30:00+08:00",
+      "content": "初审自动过已经联动到审批流状态机，自动完成初审，刚上线了。终审还是走人工，不会动。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_req",
+      "author_id": "u_product",
+      "timestamp": "2026-09-04T09:31:00+08:00",
+      "content": "好的，确认。我这边同步下需求状态，有新情况再提。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-04T11:00:00+08:00",
+      "content": "@bot_data 自动初审机制上线后触发过吗？统计一下触发次数，我怀疑有假绿风险。",
+      "reply_to": null,
+      "mentions": [
+        "bot_data"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-04T11:01:00+08:00",
+      "content": "自动初审机制上线至今30天，触发次数：0。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-04T11:02:00+08:00",
+      "content": "0次？那这个功能基本没实际用上。数据我记录下。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-04T12:00:00+08:00",
+      "content": "@u_dev 自动初审跑是能跑，但触发次数是0。我翻了逻辑，评分空着也会默认通过，这不是假绿吗？之前说上线的时候没提过这逻辑。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-04T12:01:00+08:00",
+      "content": "对，默认通过是我写的。现在看确实危险，空评分应该直接转人工，不能自动过。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-04T12:02:00+08:00",
+      "content": "确认这个风险。0次使用+自动放行，等于埋雷。默认通过不能留，空评分不允许过初审。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-04T12:03:00+08:00",
+      "content": "好，按空评分不给过的口径来，我更新风险单和验证用例。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_director",
+      "timestamp": "2026-09-04T13:00:00+08:00",
+      "content": "自动初审直接移除吧。假绿加零使用，留着没意义。录用审批全部改人工，评分只做参考。@u_dev 尽快调整。",
+      "reply_to": null,
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-04T13:01:00+08:00",
+      "content": "已从审批流移除自动初审，评分保留展示但不参与判定。@bot_recruit 更新流程状态。",
+      "reply_to": "m_0013",
+      "mentions": [
+        "bot_recruit"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "bot_recruit",
+      "timestamp": "2026-09-04T13:02:00+08:00",
+      "content": "流程状态已更新：自动初审移除，录用审批由招聘经理手动操作，评分仅作参考。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-04T13:03:00+08:00",
+      "content": "手动审批确认，按这个口径来。以后录用结果我这边手动给。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_product",
+      "timestamp": "2026-09-04T13:04:00+08:00",
+      "content": "流程文档我同步更新了，和最终规则一致。需要补充随时说。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "mechanism": "自动初审通过",
+      "integration": "审批流状态机自动完成初审",
+      "risk_type": "假绿",
+      "cause": "评分为空时默认通过",
+      "usage_count": 0,
+      "final_rules": "所有录用审批由招聘经理手动操作，评分仅作参考",
+      "implementation_synced": true
+    },
+    "decisions": {
+      "remove_mechanism": true,
+      "decider": "u_director",
+      "reason": "假绿风险且零使用"
+    },
+    "open_questions": {
+      "mechanism_status": "待确认",
+      "remove_decision": "待拍板"
+    },
+    "commitments": {
+      "dev_owner": "u_dev"
+    },
+    "bot_outputs": {
+      "usage_count": 0
+    },
+    "corrections": {
+      "mechanism_assumption": "机制有效 → 存在假绿风险",
+      "previous_assumption": "自动机制有效"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

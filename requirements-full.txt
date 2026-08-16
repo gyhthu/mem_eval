@@ -1,0 +1,3 @@
+-r requirements.txt
+mem0ai==2.0.17
+fastembed>=0.8,<1

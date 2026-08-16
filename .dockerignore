@@ -1,0 +1,17 @@
+*
+!requirements.txt
+!requirements-full.txt
+!src/
+!src/**
+!results/
+!results/feishu_generator/
+!results/feishu_generator/batch_150_2026-08-16/
+!results/feishu_generator/batch_150_2026-08-16/questions_aggregate.json
+!results/feishu_generator/batch_150_2026-08-16/episodes/
+!results/feishu_generator/batch_150_2026-08-16/episodes/**
+!results/feishu_generator/episode_from_prototype_0004.json
+!results/eval_platform/
+!results/eval_platform/runs/
+!results/eval_platform/runs/**
+**/__pycache__/
+**/*.py[cod]

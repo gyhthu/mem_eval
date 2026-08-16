@@ -1,0 +1,11 @@
+services:
+  mem-eval:
+    image: mem-eval:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./results/eval_platform:/app/results/eval_platform
+    restart: unless-stopped

@@ -1,0 +1,501 @@
+{
+  "episode_id": "ep_prototype_0003_v002",
+  "scenario": "用户反馈分级与版本排期中的修复验证与状态回写",
+  "start_time": "2026-09-11T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0003",
+    "source_task_ids": [
+      "task_0015"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 2；使用“用户反馈分级与版本排期”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "产品经理",
+      "responsibility": "负责用户反馈分级、版本排期决策以及最终状态确认",
+      "knowledge_boundary": "了解反馈详情和版本计划，不掌握补测技术细节和外部反馈系统内部API实现"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "研发工程师",
+      "responsibility": "负责修复方案设计与实现，补充边界条件逻辑",
+      "knowledge_boundary": "熟悉代码修复和测试覆盖范围，不了解用户反馈的业务优先级和版本最终排期"
+    },
+    {
+      "id": "u_qa",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "负责补测设计与执行，确认修复质量",
+      "knowledge_boundary": "掌握测试用例过程和结果，不参与版本排期决策"
+    },
+    {
+      "id": "u_cs",
+      "kind": "human",
+      "role": "客服负责人",
+      "responsibility": "提供用户反馈原始信息与影响范围",
+      "knowledge_boundary": "了解用户问题影响面和反馈热度，不掌握技术修复细节"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "维护任务状态、版本计划和待办跟踪",
+      "knowledge_boundary": "允许访问任务字段（如状态、负责人、版本）和版本计划，不允许直接修改外部反馈系统"
+    },
+    {
+      "id": "bot_feedback",
+      "kind": "bot",
+      "role": "反馈系统集成 Bot",
+      "responsibility": "将状态写入外部反馈系统并处理外部 API 交互",
+      "knowledge_boundary": "允许访问反馈系统状态字段和API可用性，不了解测试执行细节和版本排期逻辑"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_main",
+      "title": "启动闪退反馈修复与排期"
+    },
+    {
+      "thread_id": "t_closure",
+      "title": "状态回写收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "design_review_finding",
+      "prompt_type": "new_topic",
+      "thread_id": "t_main",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "u_dev"
+      ],
+      "truth": {
+        "feedback_id": "FB-2026-0913",
+        "issue": "启动闪退",
+        "severity": "P1",
+        "review_result": "failed",
+        "gap": "缺少低内存场景补测"
+      },
+      "communication_goal": "产品经理提出将启动闪退反馈定为P1并纳入v2.3.1，研发复核后发现修复方案缺少低内存场景测试，需补测",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "test_gap",
+          "value": "缺少低内存场景补测"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "feedback_id",
+          "value": "FB-2026-0913"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "recheck_test_supplement",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_main",
+      "offset_minutes": 15,
+      "actors": [
+        "u_dev",
+        "u_qa"
+      ],
+      "truth": {
+        "supplement_status": "planned",
+        "test_case": "low_memory_suicide",
+        "fix_version": "v2.3.1",
+        "retest_owner": "u_qa"
+      },
+      "communication_goal": "研发说明已补充低内存场景修复逻辑，测试确认补测方案并安排执行",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "retest_plan",
+          "value": "low_memory_suicide"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retest_owner",
+          "value": "u_qa"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "retest_confirmed",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_main",
+      "offset_minutes": 90,
+      "actors": [
+        "u_qa",
+        "u_dev"
+      ],
+      "truth": {
+        "test_result": "passed",
+        "test_case": "low_memory_suicide",
+        "passed_at": "2026-09-01T10:30:00+08:00",
+        "fix_status": "confirmed"
+      },
+      "communication_goal": "测试补测通过，研发确认修复有效，反馈进入可关闭状态",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "retest_result",
+          "value": "passed"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "fix_status",
+          "value": "confirmed"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "external_interruption",
+      "prompt_type": "new_topic",
+      "thread_id": "t_closure",
+      "offset_minutes": 120,
+      "actors": [
+        "u_owner",
+        "bot_feedback",
+        "bot_project"
+      ],
+      "truth": {
+        "write_request": "mark_fixed",
+        "external_service": "feedback_api",
+        "interruption_reason": "第三方反馈服务API超时",
+        "error_code": "TIMEOUT",
+        "write_status": "failed"
+      },
+      "communication_goal": "产品要求反馈Bot将FB-2026-0913回写为已修复，反馈Bot报告外部服务API超时导致回写失败，项目Bot同步任务状态为等待重试",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "interruption",
+          "value": "feedback_api_timeout"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "closure_status",
+          "value": "pending_retry"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "retry_pending_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_closure",
+      "offset_minutes": 135,
+      "actors": [
+        "u_owner",
+        "bot_project",
+        "bot_feedback"
+      ],
+      "truth": {
+        "retry_planned": true,
+        "retry_window": "15分钟后",
+        "task_status": "pending_retry",
+        "next_action": "重试回写"
+      },
+      "communication_goal": "确认外部服务恢复后自动重试回写，任务暂不正式收口，项目Bot登记待重试任务",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "retry_closure",
+          "value": "true"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retry_owner",
+          "value": "bot_feedback"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "pending_retry"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "任务是否已收口",
+      "answer_path": "event:ev_05.truth.task_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "中断原因是什么",
+      "answer_path": "event:ev_04.truth.interruption_reason",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "补测是否已确认",
+      "answer_path": "event:ev_03.truth.test_result",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "是否需要重试收口",
+      "answer_path": "event:ev_05.truth.retry_planned",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-11T09:00:00+08:00",
+      "content": "FB-2026-0913 启动闪退这个反馈量挺大的，我打算定成 P1 排进 v2.3.1。修复方案你们过过了吗？",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-11T09:01:00+08:00",
+      "content": "看了，主流程没大问题，但低内存场景没补测。启动闪退在高负载下很容易复现，得先补这块测试再上。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-11T09:15:00+08:00",
+      "content": "低内存场景我补了修复逻辑，补测你这边用 low_memory_suicide 这个用例跑一下，看看能不能过。",
+      "reply_to": "m_0002",
+      "mentions": [
+        "u_qa"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-11T09:16:00+08:00",
+      "content": "好，我来安排跑 low_memory_suicide，跑完给你结果，有挂的再单独报。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-11T10:30:00+08:00",
+      "content": "low_memory_suicide 跑完了，通过，没再闪退。@u_dev",
+      "reply_to": "m_0004",
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-11T10:31:00+08:00",
+      "content": "好，修复确认有效，边界覆盖到位。状态可以推进了。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_04",
+      "thread_id": "t_closure",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-11T11:00:00+08:00",
+      "content": "@bot_feedback FB-2026-0913 补测通过，修复确认，麻烦把状态回写为已修复。",
+      "reply_to": null,
+      "mentions": [
+        "bot_feedback"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_04",
+      "thread_id": "t_closure",
+      "author_id": "bot_feedback",
+      "timestamp": "2026-09-11T11:01:00+08:00",
+      "content": "收到，尝试回写 FB-2026-0913 失败了，反馈服务API超时（TIMEOUT），状态没更新。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_04",
+      "thread_id": "t_closure",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-11T11:02:00+08:00",
+      "content": "超时了？那现在这个单子是卡在什么状态？",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_closure",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-11T11:03:00+08:00",
+      "content": "收到，已把 FB-2026-0913 同步为「等待重试」。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_05",
+      "thread_id": "t_closure",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-11T11:15:00+08:00",
+      "content": "行，@bot_feedback 已修复的状态先不要写，等 15 分钟后自动重试回写，成功了再更新。@bot_project 把这个单子登记成待重试，暂不正式收口。",
+      "reply_to": "m_0010",
+      "mentions": [
+        "bot_feedback",
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_05",
+      "thread_id": "t_closure",
+      "author_id": "bot_feedback",
+      "timestamp": "2026-09-11T11:16:00+08:00",
+      "content": "好，15 分钟后我自动重试 FB-2026-0913 的回写，有结果同步到群里。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_closure",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-11T11:17:00+08:00",
+      "content": "已登记：FB-2026-0913 待重试，15 分钟后重试，任务保持「等待重试」，不收口。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "feedback_id": "FB-2026-0913",
+      "retest_result": "passed",
+      "fix_status": "confirmed",
+      "interruption": "feedback_api_timeout"
+    },
+    "decisions": {
+      "retest_plan": "low_memory_suicide",
+      "retry_closure": "true"
+    },
+    "open_questions": {
+      "test_gap": "缺少低内存场景补测",
+      "closure_status": "pending_retry",
+      "final_status": "pending_retry"
+    },
+    "commitments": {
+      "retest_owner": "u_qa",
+      "retry_owner": "bot_feedback"
+    },
+    "bot_outputs": {},
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

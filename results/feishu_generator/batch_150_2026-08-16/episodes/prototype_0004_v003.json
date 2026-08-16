@@ -1,0 +1,534 @@
+{
+  "episode_id": "ep_prototype_0004_v003",
+  "scenario": "招聘面试流程中初试自动通过机制的引入与移除",
+  "start_time": "2026-09-20T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0004",
+    "source_task_ids": [
+      "task_0016"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility",
+      "implicit_user_reference"
+    ],
+    "variation_hint": "变体编号 3；使用“招聘面试流程与录用审批”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_hr",
+      "kind": "human",
+      "role": "人力资源业务负责人",
+      "responsibility": "提出招聘流程优化需求、澄清候选人类别、确认业务规则变更",
+      "knowledge_boundary": "熟悉招聘流程和候选人类别，不了解系统实现机制和潜在技术风险"
+    },
+    {
+      "id": "u_recruiter",
+      "kind": "human",
+      "role": "招聘专员",
+      "responsibility": "操作招聘系统、反馈候选人在实际流程中的处理情况、辅助澄清需求",
+      "knowledge_boundary": "知道候选人筛选流程和操作细节，不知道系统内部实现"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "招聘系统研发工程师",
+      "responsibility": "实现机制变动、评估技术风险、执行代码与配置修改、确认同步状态",
+      "knowledge_boundary": "掌握机制实现细节和系统联动逻辑，不掌握业务方最终拍板决策"
+    },
+    {
+      "id": "u_vp",
+      "kind": "human",
+      "role": "招聘负责人",
+      "responsibility": "审批机制去留、拍板最终规则、对无效复杂度负责",
+      "knowledge_boundary": "了解业务目标与风险概貌，不关注具体代码实现"
+    },
+    {
+      "id": "bot_data",
+      "kind": "bot",
+      "role": "数据 Bot",
+      "responsibility": "统计机制使用情况、识别假绿风险并输出报告",
+      "knowledge_boundary": "允许访问该机制的使用计数和风险检测规则，不知晓后续移除决策"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "记录最终规则、同步移除状态、更新项目配置与待办",
+      "knowledge_boundary": "只访问分配给它的规则列表和任务状态，不主动判断机制存废"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_main",
+      "title": "初试自动通过机制"
+    },
+    {
+      "thread_id": "t_remove",
+      "title": "机制移除与规则确认"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "requirement_clarify",
+      "prompt_type": "new_topic",
+      "thread_id": "t_main",
+      "offset_minutes": 0,
+      "actors": [
+        "u_hr",
+        "u_recruiter"
+      ],
+      "truth": {
+        "requirement": "为内部推荐候选人自动跳过初试",
+        "candidate_scope": "内部推荐",
+        "status": "待确认"
+      },
+      "communication_goal": "HR提出自动跳过初试的需求，招聘专员澄清该需求仅适用于内部推荐候选人，并记录当前状态为待确认",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "candidate_scope",
+          "value": "内部推荐"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "requirement",
+          "value": "内部推荐候选人自动跳过初试"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "implementation_link",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_main",
+      "offset_minutes": 45,
+      "actors": [
+        "u_dev",
+        "u_hr"
+      ],
+      "truth": {
+        "implementation_status": "已完成",
+        "mechanism_name": "初试自动通过标志",
+        "linked_scope": "内部推荐标签",
+        "sync_changed": true
+      },
+      "communication_goal": "研发确认已联动修改接通机制，内部推荐候选人的初试自动通过标志已生效，HR知晓",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "mechanism",
+          "value": "初试自动通过标志"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "implementation_owner",
+          "value": "u_dev"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "risk_discovery",
+      "prompt_type": "bot_response",
+      "thread_id": "t_main",
+      "offset_minutes": 120,
+      "actors": [
+        "bot_data",
+        "u_dev"
+      ],
+      "truth": {
+        "usage_count": 0,
+        "false_green_risk": true,
+        "risk_description": "自动通过标志在未完成背调时也会置为通过，导致不符合条件的候选人进入复试",
+        "status": "风险待确认"
+      },
+      "communication_goal": "数据Bot统计该机制使用次数为0并监测到假绿风险，研发确认技术细节，将风险上报",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "usage_count",
+          "value": 0
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "false_green_risk",
+          "value": "待确认"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "removal_decision",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_remove",
+      "offset_minutes": 180,
+      "actors": [
+        "u_vp",
+        "u_hr",
+        "u_dev"
+      ],
+      "truth": {
+        "decision": "移除自动通过机制",
+        "decision_maker": "u_vp",
+        "reason": "存在假绿风险且实际使用次数为零",
+        "effective_at": "2026-09-01T12:00:00+08:00",
+        "status": "已确认"
+      },
+      "communication_goal": "招聘VP拍板移除该机制，HR和研发确认接受，并给出生效时间",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "remove_mechanism",
+          "value": true
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "removal_reason",
+          "value": "假绿风险且零使用"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "final_rule_set",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_remove",
+      "offset_minutes": 240,
+      "actors": [
+        "u_dev",
+        "u_vp",
+        "bot_project"
+      ],
+      "truth": {
+        "final_rules": "所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试",
+        "mechanism_removed": true,
+        "implementation_synced": true,
+        "sync_date": "2026-09-01T13:00:00+08:00"
+      },
+      "communication_goal": "研发确认已移除机制并同步所有环境，项目Bot记录最终规则，VP确认规则集合",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "final_rules",
+          "value": "所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "sync_change_owner",
+          "value": "u_dev"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "rule_update_recorded",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "最终规则集合是什么",
+      "answer_path": "event:ev_05.truth.final_rules",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "谁拍板移除机制",
+      "answer_path": "event:ev_04.truth.decision_maker",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "移除的原因是什么",
+      "answer_path": "event:ev_04.truth.reason",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "实现是否已同步修改",
+      "answer_path": "event:ev_05.truth.implementation_synced",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_hr",
+      "timestamp": "2026-09-20T09:00:00+08:00",
+      "content": "@招聘专员 内推的候选人能不能在系统里自动跳过初试？现在一个个手动处理有点麻烦",
+      "reply_to": null,
+      "mentions": [
+        "u_recruiter"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-20T09:01:00+08:00",
+      "content": "理解，是想所有内部推荐候选人都跳过吗？",
+      "reply_to": "m_0001",
+      "mentions": [
+        "u_hr"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_hr",
+      "timestamp": "2026-09-20T09:02:00+08:00",
+      "content": "对，内部推荐的直接进业务面",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_recruiter",
+      "timestamp": "2026-09-20T09:03:00+08:00",
+      "content": "行，我先记录为待确认，具体范围再同步你",
+      "reply_to": "m_0003",
+      "mentions": [
+        "u_hr"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-20T09:45:00+08:00",
+      "content": "@u_hr 内推标签的候选人我已经加上初试自动通过标志了，同步也调通了。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "u_hr"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_hr",
+      "timestamp": "2026-09-20T09:46:00+08:00",
+      "content": "好，那内推的就可以直接进业务面了，谢谢研发同学。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-20T11:00:00+08:00",
+      "content": "@u_dev 自动通过机制监测到假绿风险：未完成背调时也会置为通过。当前使用次数为0，但风险规则命中。麻烦确认下实现逻辑。",
+      "reply_to": null,
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-20T11:01:00+08:00",
+      "content": "确认。赋值时没校验背调状态，风险成立。我先记下来，上报同步。",
+      "reply_to": "m_0007",
+      "mentions": [
+        "bot_data"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-20T11:02:00+08:00",
+      "content": "好，我继续盯着，计数有变化再同步。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_remove",
+      "author_id": "u_vp",
+      "timestamp": "2026-09-20T12:00:00+08:00",
+      "content": "自动通过机制移除掉吧，零使用还带假绿风险，没必要留着。生效时间按9月1日12点。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_remove",
+      "author_id": "u_hr",
+      "timestamp": "2026-09-20T12:01:00+08:00",
+      "content": "明白，那内推候选人恢复原来的初试流程。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_remove",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-20T12:02:00+08:00",
+      "content": "确认，我这边按9月1日12点去掉自动通过的配置，同步完同步结论。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_remove",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-20T13:00:00+08:00",
+      "content": "环境都同步完了，自动通过已摘掉。@bot_project 记一下最终规则。",
+      "reply_to": "m_0012",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_remove",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-20T13:01:00+08:00",
+      "content": "已记录最终规则：所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试；自动通过机制已移除，9月1日13:00全环境同步完成。",
+      "reply_to": "m_0013",
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_remove",
+      "author_id": "u_vp",
+      "timestamp": "2026-09-20T13:02:00+08:00",
+      "content": "确认，最终规则以这个为准。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "requirement": "内部推荐候选人自动跳过初试",
+      "mechanism": "初试自动通过标志",
+      "removal_reason": "假绿风险且零使用",
+      "final_rules": "所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试"
+    },
+    "decisions": {
+      "remove_mechanism": true
+    },
+    "open_questions": {
+      "candidate_scope": "内部推荐",
+      "false_green_risk": "待确认"
+    },
+    "commitments": {
+      "implementation_owner": "u_dev",
+      "sync_change_owner": "u_dev"
+    },
+    "bot_outputs": {
+      "usage_count": 0,
+      "rule_update_recorded": true
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

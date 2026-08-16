@@ -1,0 +1,580 @@
+{
+  "scenario": "CRM商机阶段自动同步提醒机制因零使用与假绿风险被业务负责人下线",
+  "prototype_trace": {
+    "prototype_id": "prototype_0004",
+    "source_task_ids": [
+      "task_0016"
+    ]
+  },
+  "participants": [
+    {
+      "id": "u_csm",
+      "kind": "human",
+      "role": "客户成功经理",
+      "responsibility": "提出并澄清业务需求，代表提醒机制的实际使用方",
+      "knowledge_boundary": "了解商机阶段字段与提醒使用情况，不了解回调实现细节"
+    },
+    {
+      "id": "u_pm",
+      "kind": "human",
+      "role": "产品经理",
+      "responsibility": "承接需求、确认产品规则、组织风险决策",
+      "knowledge_boundary": "了解产品语义和上线状态，不掌握后台回调代码实现"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "后端研发",
+      "responsibility": "实现回调机制、说明触发条件与风险、执行下线",
+      "knowledge_boundary": "了解回调逻辑和同步状态，不掌握用户实际使用数据"
+    },
+    {
+      "id": "u_data",
+      "kind": "human",
+      "role": "数据分析师",
+      "responsibility": "查询机制使用量与触发日志，辅助风险判断",
+      "knowledge_boundary": "只读取数据仓库使用记录，不决策规则去留"
+    },
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "业务负责人",
+      "responsibility": "代表用户方拍板最终规则",
+      "knowledge_boundary": "基于业务使用和风险结论做决策，不深入技术实现"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目 Bot",
+      "responsibility": "记录任务、决策、行动项，更新事项状态",
+      "knowledge_boundary": "只记录被明确告知的规则与任务，不判断业务或技术风险"
+    },
+    {
+      "id": "bot_data",
+      "kind": "bot",
+      "role": "数据 Bot",
+      "responsibility": "按查询条件返回使用量和日志统计",
+      "knowledge_boundary": "只能返回近 90 天使用数据，不知道技术回调细节与决策结论"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_req",
+      "title": "商机阶段同步提醒"
+    },
+    {
+      "thread_id": "t_risk",
+      "title": "同步机制使用与去留"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "requirement_clarification",
+      "prompt_type": "new_topic",
+      "thread_id": "t_req",
+      "offset_minutes": 0,
+      "actors": [
+        "u_csm",
+        "u_pm"
+      ],
+      "truth": {
+        "requester": "u_csm",
+        "demand": "商机阶段变化后能在 CRM 首页自动生成提醒",
+        "ambiguous_term": "状态",
+        "clarified_referent": "商机阶段，尤其是“赢单”阶段",
+        "old_referent": "客户状态",
+        "confirmed": true
+      },
+      "communication_goal": "客户成功经理提出自动提醒需求，产品经理澄清“状态”指商机阶段而非客户状态，双方统一口径",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "requirement_scope",
+          "value": "商机阶段自动提醒"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "implementation_path",
+          "value": "待实现方确认"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "implementation_linkage_update",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_req",
+      "offset_minutes": 30,
+      "actors": [
+        "u_pm",
+        "u_dev"
+      ],
+      "truth": {
+        "original_mechanism": "监听客户状态字段变化",
+        "new_mechanism": "监听商机阶段字段，阶段变为“赢单”时写入提醒表",
+        "trigger_key": "stage",
+        "acceptance_criteria": "仅“赢单”阶段变化产生提醒",
+        "status": "已实现并上线"
+      },
+      "communication_goal": "研发说明接通机制已从客户状态改为商机阶段，产品确认验收口径",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "implementation_mechanism",
+          "value": "监听商机阶段字段"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "dev_handoff",
+          "value": "研发已上线并通知产品验收"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "usage_and_risk_discovery",
+      "prompt_type": "bot_response",
+      "thread_id": "t_risk",
+      "offset_minutes": 1440,
+      "actors": [
+        "u_pm",
+        "bot_data",
+        "u_dev"
+      ],
+      "truth": {
+        "trigger": "产品经理 @数据Bot 查询近 90 天提醒生成与点击量",
+        "query_scope": "近 90 天",
+        "generated_count": 0,
+        "click_count": 0,
+        "false_green_condition": "批量导入商机阶段时 updated_at 不刷新，回调不触发但状态页显示同步成功",
+        "affected_mechanism": "商机阶段自动同步提醒"
+      },
+      "communication_goal": "数据Bot返回零使用量，研发补充说明假绿风险，产品确认需要决策去留",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "usage_last_90d",
+          "value": "0 次生成，0 次点击"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "false_green_risk",
+          "value": "批量导入时状态绿但回调未触发"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "keep_or_remove",
+          "value": "待业务负责人决策"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "removal_decision",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_risk",
+      "offset_minutes": 1470,
+      "actors": [
+        "u_owner",
+        "u_pm",
+        "u_dev"
+      ],
+      "truth": {
+        "keep_proposal": "产品建议保留并修复批量导入触发问题",
+        "decider": "u_owner",
+        "decision": "移除自动同步提醒机制",
+        "reason": "存在假绿风险且近 90 天零使用，保留只会增加无效复杂度",
+        "rejected_fix": "修复批量导入回调",
+        "effective_at": "立即生效"
+      },
+      "communication_goal": "业务负责人不同意保留修复方案，拍板移除自动同步机制",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "keep_or_remove",
+          "value": "移除"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "decider",
+          "value": "u_owner"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "keep_proposal",
+          "value": "被否决"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "closure_final_rules",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_risk",
+      "offset_minutes": 1500,
+      "actors": [
+        "u_owner",
+        "u_pm",
+        "u_dev",
+        "bot_project"
+      ],
+      "truth": {
+        "final_rules": [
+          "自动同步提醒机制下线",
+          "保留商机详情页手动提醒按钮",
+          "移除状态页中“同步成功”展示",
+          "后续商机阶段变化不再触发提醒"
+        ],
+        "implementation_synced": true,
+        "removal_task": "u_dev 已提交代码下线并同步状态页",
+        "bot_record": "项目Bot已记录下线任务"
+      },
+      "communication_goal": "确认最终规则集合，研发同步下线，项目Bot记录任务与状态",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "final_rules",
+          "value": "自动同步下线，保留手动提醒，移除同步成功展示"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "final_status",
+          "value": "已移除"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "removal_handoff",
+          "value": "研发已同步修改，项目Bot已记录"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "project_bot_ack",
+          "value": "任务已记录"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "最终规则集合是什么",
+      "answer_path": "event:ev_05.truth.final_rules",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "谁拍板移除机制",
+      "answer_path": "event:ev_04.truth.decider",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "移除的原因是什么",
+      "answer_path": "event:ev_04.truth.reason",
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "实现是否已同步修改",
+      "answer_path": "event:ev_05.truth.implementation_synced",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "episode_id": "ep_prototype_0004_001",
+  "start_time": "2026-09-01T09:00:00+08:00",
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_csm",
+      "timestamp": "2026-09-01T09:00:00+08:00",
+      "content": "有个需求想同步下，商机状态变更之后能不能在CRM首页自动生成个提醒？",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_pm",
+      "timestamp": "2026-09-01T09:01:00+08:00",
+      "content": "@u_csm 你说的「状态」具体指哪个？商机阶段还是客户状态，这俩差别挺大的",
+      "reply_to": "m_0001",
+      "mentions": [
+        "u_csm"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_req",
+      "author_id": "u_csm",
+      "timestamp": "2026-09-01T09:02:00+08:00",
+      "content": "是商机阶段，主要是赢单那种关键节点想第一时间看到",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_req",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-01T09:30:00+08:00",
+      "content": "@u_pm 已经改好了，之前那版监听的是客户状态字段，现在换成监听商机阶段，stage 变成赢单的时候才写提醒表",
+      "reply_to": "m_0003",
+      "mentions": [
+        "u_pm"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_req",
+      "author_id": "u_pm",
+      "timestamp": "2026-09-01T09:31:00+08:00",
+      "content": "那验收口径就只认赢单这一种，其他阶段变化不触发对吧",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_req",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-01T09:32:00+08:00",
+      "content": "对，只有赢单触发，已经上线了",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "u_pm",
+      "timestamp": "2026-09-02T09:00:00+08:00",
+      "content": "@bot_data 拉一下近90天商机阶段提醒的生成数和点击数",
+      "reply_to": null,
+      "mentions": [
+        "bot_data"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-02T09:01:00+08:00",
+      "content": "近90天「商机阶段自动同步提醒」：生成 0 条，点击 0 次",
+      "reply_to": "m_0007",
+      "mentions": [
+        "u_pm"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-02T09:02:00+08:00",
+      "content": "而且批量导入商机阶段的时候 updated_at 不会刷新，回调根本不触发，但状态页还显示同步成功",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_risk",
+      "author_id": "u_pm",
+      "timestamp": "2026-09-02T09:03:00+08:00",
+      "content": "零使用还带假绿风险，这功能得考虑下线了",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_pm",
+      "timestamp": "2026-09-02T09:30:00+08:00",
+      "content": "要不还是先把批量导入的触发修了，功能先留着？",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-02T09:31:00+08:00",
+      "content": "不用修了，零使用还假绿，留着只增加复杂度，直接移除",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_risk",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-02T09:32:00+08:00",
+      "content": "好，那我今天就下掉",
+      "reply_to": "m_0012",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-02T10:00:00+08:00",
+      "content": "代码提了，自动同步提醒和状态页的同步成功展示都移除了，后续商机阶段变化不再触发",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-02T10:01:00+08:00",
+      "content": "商机详情页手动提醒按钮保留就行",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_risk",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-02T10:02:00+08:00",
+      "content": "已记录：商机阶段自动同步提醒机制下线。规则：①移除自动同步提醒 ②移除状态页「同步成功」展示 ③后续商机阶段变化不再触发提醒 ④保留商机详情页手动提醒按钮。@u_dev 已提交代码下线并同步状态页",
+      "reply_to": "m_0014",
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "requirement_scope": "商机阶段自动提醒",
+      "false_green_risk": "批量导入时状态绿但回调未触发",
+      "final_rules": "自动同步下线，保留手动提醒，移除同步成功展示"
+    },
+    "decisions": {
+      "implementation_mechanism": "监听商机阶段字段",
+      "keep_or_remove": "移除",
+      "decider": "u_owner",
+      "final_status": "已移除"
+    },
+    "open_questions": {
+      "implementation_path": "待实现方确认",
+      "keep_or_remove": "待业务负责人决策"
+    },
+    "commitments": {
+      "dev_handoff": "研发已上线并通知产品验收",
+      "removal_handoff": "研发已同步修改，项目Bot已记录"
+    },
+    "bot_outputs": {
+      "usage_last_90d": "0 次生成，0 次点击",
+      "project_bot_ack": "任务已记录"
+    },
+    "corrections": {
+      "keep_proposal": "被否决"
+    }
+  },
+  "generator": {
+    "provider": "zai",
+    "model": "glm-5.2",
+    "fact_audit": true
+  }
+}

@@ -1,0 +1,634 @@
+{
+  "episode_id": "ep_prototype_0006_v003",
+  "scenario": "物流异常处理与客户赔付规则调整后的链路改造与旧数据迁移",
+  "start_time": "2026-09-22T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0006",
+    "source_task_ids": [
+      "task_0019"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 3；使用“物流异常处理与客户赔付”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_ops",
+      "kind": "human",
+      "role": "运营负责人",
+      "responsibility": "负责赔付规则指标调整，决策旧数据是否迁移",
+      "knowledge_boundary": "清楚新指标集合与业务目标，不了解内部字段映射和测试实现"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "研发工程师",
+      "responsibility": "负责数据提取与赔付计算链路改造，修复旧库键映射",
+      "knowledge_boundary": "知道链路实现和旧库结构，不清楚业务指标的最终决策"
+    },
+    {
+      "id": "u_test",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "负责测试链路打桩与回归验证，识别并修复打桩污染",
+      "knowledge_boundary": "知道测试环境与打桩配置，不了解赔付业务规则细节"
+    },
+    {
+      "id": "u_data",
+      "kind": "human",
+      "role": "数据分析师",
+      "responsibility": "负责历史赔付数据分析和迁移影响评估",
+      "knowledge_boundary": "知道数据量与迁移成本，不了解代码实现"
+    },
+    {
+      "id": "bot_data",
+      "kind": "bot",
+      "role": "数据 Bot",
+      "responsibility": "提供当前配置、旧库键映射、迁移数据量等查询结果",
+      "knowledge_boundary": "只允许访问配置表和旧库元数据，不知道业务决策和测试状态"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "记录变更、任务状态和决策待办，跟进群聊行动项",
+      "knowledge_boundary": "只允许读取群聊中的状态和决策，不知道技术实现和测试细节"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_main",
+      "title": "赔付指标调整与链路改造"
+    },
+    {
+      "thread_id": "t_test",
+      "title": "回归测试与提交"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "indicator_change_request",
+      "prompt_type": "new_topic",
+      "thread_id": "t_main",
+      "offset_minutes": 0,
+      "actors": [
+        "u_ops",
+        "u_dev",
+        "u_data",
+        "bot_project"
+      ],
+      "truth": {
+        "new_indicator_set": [
+          "时效≤48小时",
+          "赔付系数1.5倍",
+          "异常类型:延误/破损/丢失"
+        ],
+        "old_indicator_set": [
+          "时效≤72小时",
+          "赔付系数1.0倍",
+          "异常类型:延误/丢失"
+        ],
+        "status": "待评估"
+      },
+      "communication_goal": "运营提出调整赔付规则指标，研发初步评估链路影响，项目Bot记录变更",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "new_indicator_set",
+          "value": [
+            "时效≤48小时",
+            "赔付系数1.5倍",
+            "异常类型:延误/破损/丢失"
+          ]
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "change_requested",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "impact_assessment",
+          "value": "待评估"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "link_rework_analysis",
+      "prompt_type": "bot_response",
+      "thread_id": "t_main",
+      "offset_minutes": 30,
+      "actors": [
+        "u_dev",
+        "bot_data",
+        "u_ops"
+      ],
+      "truth": {
+        "trigger": "研发要求查询旧库赔付字段",
+        "old_key_mapping": {
+          "time_limit": "old_threshold",
+          "compensation_coef": "old_coef",
+          "exception_type": "enum_old"
+        },
+        "new_required_fields": [
+          "time_limit_new",
+          "compensation_coef_new",
+          "exception_type_new"
+        ],
+        "incompatibility": "旧库键不兼容，需要改造提取映射",
+        "status": "待改造"
+      },
+      "communication_goal": "数据Bot展示旧库键与新需求不兼容，研发确认需要改造链路",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "incompatibility",
+          "value": "旧库键不兼容，需要改造提取映射"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "old_key_mapping",
+          "value": {
+            "time_limit": "old_threshold",
+            "compensation_coef": "old_coef",
+            "exception_type": "enum_old"
+          }
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "link_rework_required",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "new_field_mapping",
+          "value": "待设计"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "test_pollution_fix",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_test",
+      "offset_minutes": 90,
+      "actors": [
+        "u_test",
+        "u_dev",
+        "bot_project"
+      ],
+      "truth": {
+        "reported_failure": "3个用例失败",
+        "actual_cause": "旧打桩数据污染",
+        "fix": "清理打桩并重置测试环境",
+        "status": "已修复"
+      },
+      "communication_goal": "测试纠正研发对失败的误判，确认是打桩污染并修复",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "test_pollution_fixed",
+          "value": true
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "failure_cause",
+          "value": "打桩污染，非代码缺陷"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "full_test_pending",
+          "value": "待执行"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "full_test_submit",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_test",
+      "offset_minutes": 150,
+      "actors": [
+        "u_test",
+        "u_dev",
+        "bot_project"
+      ],
+      "truth": {
+        "full_test_result": "通过",
+        "commit_id": "commit_20260901_1430",
+        "status": "已提交"
+      },
+      "communication_goal": "确认全量测试通过，研发提交新链路代码，项目Bot更新状态",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "full_test_result",
+          "value": "通过"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "commit_id",
+          "value": "commit_20260901_1430"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "migration_decision",
+          "value": "待用户决策"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "migration_pending",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_main",
+      "offset_minutes": 180,
+      "actors": [
+        "bot_data",
+        "u_ops",
+        "u_data",
+        "bot_project"
+      ],
+      "truth": {
+        "data_volume": "120万条历史赔付记录",
+        "risk": "旧键不兼容，需要映射转换",
+        "decision": "暂不迁移",
+        "status": "待决策"
+      },
+      "communication_goal": "数据Bot提示迁移量，运营决定暂不迁移，作为开放问题保留",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "old_data_volume",
+          "value": "120万条"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "migration_risk",
+          "value": "旧键不兼容，需要映射转换"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "migrate_old_data",
+          "value": false
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "migration_timeline",
+          "value": "待业务确认"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "新指标集合是什么",
+      "answer_path": "ledger:facts.new_indicator_set",
+      "evidence_event_ids": [
+        "ev_01"
+      ]
+    },
+    {
+      "hook": "旧数据是否迁移",
+      "answer_path": "ledger:decisions.migrate_old_data",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "测试污染是否已修复",
+      "answer_path": "ledger:facts.test_pollution_fixed",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "是否最终确认",
+      "answer_path": "ledger:facts.full_test_result",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-22T09:00:00+08:00",
+      "content": "@bot_project 赔付规则指标要调了，新时效48小时、赔付1.5倍，异常类型加破损。先记个变更，研发和数据帮忙看下影响。",
+      "reply_to": null,
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-22T09:01:00+08:00",
+      "content": "已记录变更申请：时效≤48h、赔付系数1.5、异常类型含破损/延误/丢失，状态待评估。请研发和数据反馈影响。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T09:02:00+08:00",
+      "content": "收到。旧库只有延误和丢失，破损要新增映射；时效和系数的话，联调数据源要再确认。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_data",
+      "timestamp": "2026-09-22T09:03:00+08:00",
+      "content": "历史数据我拉下，重点看破损单的赔付记录，确认迁移范围。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T09:30:00+08:00",
+      "content": "@bot_data 旧库赔付字段对应的键查一下？新需求这边是 time_limit_new、compensation_coef_new、exception_type_new，看兼容性。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "bot_data"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-22T09:31:00+08:00",
+      "content": "旧库赔付键：时效 old_threshold、系数 old_coef、异常类型 enum_old。新需求需要 time_limit_new、compensation_coef_new、exception_type_new，键不兼容，提取映射需要改造。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T09:32:00+08:00",
+      "content": "行，确实不兼容。链路开发改，我先标记待改造。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_test",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T10:30:00+08:00",
+      "content": "测试那 3 个失败看到了吗？我怀疑是新映射逻辑的兼容问题，正在查。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_test",
+      "author_id": "u_test",
+      "timestamp": "2026-09-22T10:31:00+08:00",
+      "content": "不是映射问题。查了环境，是旧打桩数据污染，清理重置后已经恢复。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_test",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T10:32:00+08:00",
+      "content": "那就不是代码改动的问题，我不查了。@bot_project 测试环境已恢复，记录一下状态。",
+      "reply_to": "m_0009",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_03",
+      "thread_id": "t_test",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-22T10:33:00+08:00",
+      "content": "已记录：测试环境已恢复，测试失败问题已解决。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "u_test",
+      "timestamp": "2026-09-22T11:30:00+08:00",
+      "content": "全量测试通过了，回归全绿。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-22T11:31:00+08:00",
+      "content": "好，那提交新链路代码，commit_20260901_1430。@bot_project 更新状态。",
+      "reply_to": "m_0012",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_04",
+      "thread_id": "t_test",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-22T11:32:00+08:00",
+      "content": "已记录：全量测试通过，新链路代码已提交（commit_20260901_1430），当前状态：已提交。",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-22T12:00:00+08:00",
+      "content": "@u_ops 历史赔付数据量查出来了：120万条。旧库的键跟新需求不兼容，直接迁移会有兼容问题，得先做字段映射。要迁移的话我可以出清单。",
+      "reply_to": "m_0007",
+      "mentions": [
+        "u_ops"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-22T12:01:00+08:00",
+      "content": "@bot_project 先不迁。迁移量太大还得做映射，近期不划算，等规则跑一阵再评估。记成开放问题吧。",
+      "reply_to": "m_0015",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-22T12:02:00+08:00",
+      "content": "已记录：历史赔付暂不迁移，状态设为开放，后续再评估迁移必要性。",
+      "reply_to": "m_0016",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "new_indicator_set": [
+        "时效≤48小时",
+        "赔付系数1.5倍",
+        "异常类型:延误/破损/丢失"
+      ],
+      "incompatibility": "旧库键不兼容，需要改造提取映射",
+      "test_pollution_fixed": true,
+      "full_test_result": "通过",
+      "old_data_volume": "120万条"
+    },
+    "decisions": {
+      "change_requested": true,
+      "link_rework_required": true,
+      "migrate_old_data": false
+    },
+    "open_questions": {
+      "impact_assessment": "待评估",
+      "new_field_mapping": "待设计",
+      "full_test_pending": "待执行",
+      "migration_decision": "待用户决策",
+      "migration_timeline": "待业务确认"
+    },
+    "commitments": {
+      "commit_id": "commit_20260901_1430"
+    },
+    "bot_outputs": {
+      "old_key_mapping": {
+        "time_limit": "old_threshold",
+        "compensation_coef": "old_coef",
+        "exception_type": "enum_old"
+      },
+      "migration_risk": "旧键不兼容，需要映射转换"
+    },
+    "corrections": {
+      "failure_cause": "打桩污染，非代码缺陷"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

@@ -1,0 +1,689 @@
+{
+  "episode_id": "ep_prototype_0001_v002",
+  "scenario": "门店促销规则与库存联动",
+  "start_time": "2026-09-09T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0001",
+    "source_task_ids": [
+      "task_0001",
+      "task_0002",
+      "task_0003",
+      "task_0005",
+      "task_0006",
+      "task_0007",
+      "task_0009",
+      "task_0010",
+      "task_0011",
+      "task_0012",
+      "task_0013",
+      "task_0014",
+      "task_0018",
+      "task_0022"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility",
+      "terminology_ambiguity"
+    ],
+    "variation_hint": "变体编号 2；使用“门店促销规则与库存联动”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_sales",
+      "kind": "human",
+      "role": "促销运营专员",
+      "responsibility": "提交门店促销规则，跟进复核与修复进度",
+      "knowledge_boundary": "了解促销活动的业务目标和规则口径；不了解库存系统联动配置"
+    },
+    {
+      "id": "u_reviewer",
+      "kind": "human",
+      "role": "合规复核专员",
+      "responsibility": "独立复核促销规则是否满足库存联动规范，并确认修复结果",
+      "knowledge_boundary": "熟悉促销规则模板和库存联动合规要求；不了解库存系统具体实现"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "库存系统研发",
+      "responsibility": "实施库存联动缺失项修复，完成配置部署",
+      "knowledge_boundary": "掌握库存系统配置和实现；不负责促销业务最终决策"
+    },
+    {
+      "id": "u_qa",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "对修复进行独立复验，验证低库存和正常库存场景",
+      "knowledge_boundary": "掌握测试数据和用例；不了解促销成本与业务口径"
+    },
+    {
+      "id": "u_manager",
+      "kind": "human",
+      "role": "门店运营经理",
+      "responsibility": "审批规则变更并最终确认收口",
+      "knowledge_boundary": "了解活动目标和风险容忍度；不了解技术配置细节"
+    },
+    {
+      "id": "bot_rule",
+      "kind": "bot",
+      "role": "促销规则 Bot",
+      "responsibility": "对促销规则做格式和政策框架预检，维护规则状态",
+      "knowledge_boundary": "允许访问规则模板、历史规则和规则状态；不访问实时库存与联动配置"
+    },
+    {
+      "id": "bot_stock",
+      "kind": "bot",
+      "role": "库存联动 Bot",
+      "responsibility": "读取库存快照和联动开关状态，返回库存阈值是否生效",
+      "knowledge_boundary": "允许访问库存快照和联动配置；不访问促销价格规则"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_review",
+      "title": "周末酸奶买二赠一规则复核"
+    },
+    {
+      "thread_id": "t_fix",
+      "title": "库存联动修复与复验"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "submit_review",
+      "prompt_type": "new_topic",
+      "thread_id": "t_review",
+      "offset_minutes": 0,
+      "actors": [
+        "u_sales",
+        "bot_rule"
+      ],
+      "truth": {
+        "rule_id": "PROMO-2026-0901",
+        "rule_name": "周末酸奶买二赠一",
+        "offer_quantity": "买二赠一",
+        "stock_condition": "库存≥100件生效",
+        "status": "待复核"
+      },
+      "communication_goal": "促销运营提交规则，触发促销规则 Bot 预检",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "rule_id",
+          "value": "PROMO-2026-0901"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "stock_condition",
+          "value": "库存≥100件生效"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "待复核"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "bot_precheck",
+      "prompt_type": "bot_response",
+      "thread_id": "t_review",
+      "offset_minutes": 10,
+      "actors": [
+        "u_sales",
+        "bot_rule"
+      ],
+      "truth": {
+        "precheck_result": "通过",
+        "checked_items": [
+          "规则格式",
+          "折扣力度范围"
+        ],
+        "bot_correctness": "格式和活动政策无误，但未校验库存联动"
+      },
+      "communication_goal": "促销规则 Bot 返回预检通过，为后续复核提供参考结论",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "precheck_result",
+          "value": "通过"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "precheck_checked_items",
+          "value": "规则格式,折扣力度范围"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "gap_discovery",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_review",
+      "offset_minutes": 25,
+      "actors": [
+        "u_reviewer",
+        "bot_stock"
+      ],
+      "truth": {
+        "inventory_sync_enabled": false,
+        "required_threshold": 100,
+        "configured_threshold": "未配置",
+        "correction": "预检通过仅确认格式，库存联动缺失需处置",
+        "status": "待处置"
+      },
+      "communication_goal": "复核人追问库存联动状态，Bot 返回未开启同步，发现隐藏风险",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "inventory_sync_enabled",
+          "value": false
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "pending_items",
+          "value": "库存联动未生效"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "precheck_conclusion",
+          "value": "预检通过仅确认格式，库存联动缺失需处置"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "待处置"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "fix_implementation",
+      "prompt_type": "new_topic",
+      "thread_id": "t_fix",
+      "offset_minutes": 60,
+      "actors": [
+        "u_dev",
+        "u_sales"
+      ],
+      "truth": {
+        "fix_applied": true,
+        "inventory_sync_enabled": true,
+        "configured_threshold": 100,
+        "status": "已修复"
+      },
+      "communication_goal": "研发配置库存联动阈值并同步，销售确认规则口径一致",
+      "message_count": {
+        "min": 2,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "configured_threshold",
+          "value": 100
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "fix_owner",
+          "value": "u_dev"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "fix_done",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "已修复"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "independent_recheck",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_fix",
+      "offset_minutes": 120,
+      "actors": [
+        "u_qa",
+        "bot_stock",
+        "u_reviewer"
+      ],
+      "truth": {
+        "low_stock_promo_active": false,
+        "normal_stock_promo_active": true,
+        "confirmed_by": "u_qa",
+        "status": "复验通过"
+      },
+      "communication_goal": "QA 独立复验低库存与正常库存两组场景，Bot 返回正确联动状态，复核人确认",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "verified_low_stock",
+          "value": false
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "verified_normal_stock",
+          "value": true
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "fix_confirmed_by",
+          "value": "u_qa"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "复验通过"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "pending_items",
+          "value": "无"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_06",
+      "type": "closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_review",
+      "offset_minutes": 180,
+      "actors": [
+        "u_manager",
+        "u_sales",
+        "u_reviewer",
+        "bot_rule"
+      ],
+      "truth": {
+        "closure_status": "已收口",
+        "effective_time": "2026-09-05T10:00:00+08:00",
+        "confirmed_by": "u_manager",
+        "status": "已收口"
+      },
+      "communication_goal": "门店运营经理确认修复与复验结果，规则生效并关闭复核流程",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "closure_status",
+          "value": "已收口"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "effective_time",
+          "value": "2026-09-05T10:00:00+08:00"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "closure_confirmed_by",
+          "value": "u_manager"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "最终是否收口",
+      "answer_path": "event:ev_06.truth.closure_status",
+      "evidence_event_ids": [
+        "ev_06"
+      ]
+    },
+    {
+      "hook": "遗留哪些待处置项",
+      "answer_path": "ledger:open_questions.pending_items",
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "谁确认修复完成",
+      "answer_path": "event:ev_05.truth.confirmed_by",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "旧结论是否被修正",
+      "answer_path": "event:ev_03.truth.correction",
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-09T09:00:00+08:00",
+      "content": "@bot_rule 提交促销规则 PROMO-2026-0901，周末酸奶买二赠一，库存≥100件生效，麻烦预检一下。",
+      "reply_to": null,
+      "mentions": [
+        "bot_rule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-09T09:01:00+08:00",
+      "content": "已收到规则 PROMO-2026-0901，格式和政策框架预检通过，状态更新为待复核。提醒：我这边不访问实时库存，库存联动需另行确认。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-09T09:10:00+08:00",
+      "content": "@bot_rule 预检结果咋样？我看状态还是待复核。",
+      "reply_to": "m_0002",
+      "mentions": [
+        "bot_rule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-09T09:11:00+08:00",
+      "content": "PROMO-2026-0901 预检通过，格式和折扣范围都合规，状态保持待复核。库存联动我不访问实时数据，需要库存系统那边再确认。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-09T09:12:00+08:00",
+      "content": "好，我去找库存核对下。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-09T09:25:00+08:00",
+      "content": "@bot_stock 库存联动这块帮查一下，规则里写了库存≥100件才生效，现在联动是否已配置？",
+      "reply_to": "m_0004",
+      "mentions": [
+        "bot_stock"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "bot_stock",
+      "timestamp": "2026-09-09T09:26:00+08:00",
+      "content": "刚查了库存联动配置，开关未开启，也没有设置生效阈值。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-09T09:27:00+08:00",
+      "content": "那预检通过只能算是格式没问题，库存联动缺失是个隐患，先标待处置吧。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_04",
+      "thread_id": "t_fix",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-09T10:00:00+08:00",
+      "content": "@u_sales 库存联动搞定了，阈值设的100，同步开关也开了。",
+      "reply_to": null,
+      "mentions": [
+        "u_sales"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_fix",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-09T10:01:00+08:00",
+      "content": "那和规则里“库存≥100件生效”正好一致？",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_fix",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-09T10:02:00+08:00",
+      "content": "对，低于100自动不生效，不会空挂。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_fix",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-09T10:03:00+08:00",
+      "content": "行，口径对上了，没问题。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_fix",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-09T11:00:00+08:00",
+      "content": "@bot_stock 帮我查下 SKU A 库存 50 和 150 的促销联动状态，我复验一下。",
+      "reply_to": "m_0009",
+      "mentions": [
+        "bot_stock"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_fix",
+      "author_id": "bot_stock",
+      "timestamp": "2026-09-09T11:01:00+08:00",
+      "content": "库存 50：促销不生效；库存 150：促销生效。",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_fix",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-09T11:02:00+08:00",
+      "content": "两个状态都对，复验通过。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_06",
+      "thread_id": "t_review",
+      "author_id": "u_reviewer",
+      "timestamp": "2026-09-09T12:00:00+08:00",
+      "content": "@u_manager 经理，PROMO-2026-0901 库存联动修复后我复验过了：库存 50 不生效、150 生效，均符合预期。之前标的待处置项可以结了。",
+      "reply_to": "m_0008",
+      "mentions": [
+        "u_manager"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_06",
+      "thread_id": "t_review",
+      "author_id": "u_manager",
+      "timestamp": "2026-09-09T12:01:00+08:00",
+      "content": "确认修复和复验结果。规则按 2026-09-05 10:00 生效，复核流程关闭，待处置状态替换为已收口。@bot_rule 更新下状态。",
+      "reply_to": "m_0016",
+      "mentions": [
+        "bot_rule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0018",
+      "event_id": "ev_06",
+      "thread_id": "t_review",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-09T12:02:00+08:00",
+      "content": "已更新：PROMO-2026-0901 状态=已收口，生效时间=2026-09-05 10:00。",
+      "reply_to": "m_0017",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "rule_id": "PROMO-2026-0901",
+      "stock_condition": "库存≥100件生效",
+      "precheck_checked_items": "规则格式,折扣力度范围",
+      "inventory_sync_enabled": false,
+      "configured_threshold": 100,
+      "verified_low_stock": false,
+      "verified_normal_stock": true
+    },
+    "decisions": {
+      "closure_status": "已收口",
+      "effective_time": "2026-09-05T10:00:00+08:00"
+    },
+    "open_questions": {
+      "review_status": "复验通过",
+      "pending_items": "无"
+    },
+    "commitments": {
+      "fix_owner": "u_dev",
+      "fix_done": true,
+      "fix_confirmed_by": "u_qa",
+      "closure_confirmed_by": "u_manager"
+    },
+    "bot_outputs": {
+      "precheck_result": "通过"
+    },
+    "corrections": {
+      "precheck_conclusion": "预检通过仅确认格式，库存联动缺失需处置"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

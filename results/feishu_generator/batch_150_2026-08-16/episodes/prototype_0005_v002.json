@@ -1,0 +1,581 @@
+{
+  "episode_id": "ep_prototype_0005_v002",
+  "scenario": "设备维护窗口与业务停机",
+  "start_time": "2026-09-13T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0005",
+    "source_task_ids": [
+      "task_0017"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "knowledge_absence"
+    ],
+    "variation_hint": "变体编号 2；使用“设备维护窗口与业务停机”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "设备维护负责人",
+      "responsibility": "负责维护窗口与停机决策，审批新维护规则是否采纳",
+      "knowledge_boundary": "熟悉设备维护计划和业务停机影响，不了解沙箱验证的内部规则细节"
+    },
+    {
+      "id": "u_engineer",
+      "kind": "human",
+      "role": "维护工程师",
+      "responsibility": "提供历史规则样本，分析根因并补齐判定族",
+      "knowledge_boundary": "熟悉设备运行参数和维护规则，不掌握生产调度窗口的具体约束"
+    },
+    {
+      "id": "u_planner",
+      "kind": "human",
+      "role": "生产调度员",
+      "responsibility": "协调业务停机窗口，评估维护规则变更对生产计划的影响",
+      "knowledge_boundary": "了解生产排程和停机窗口，不熟悉规则验证的技术细节"
+    },
+    {
+      "id": "bot_sandbox",
+      "kind": "bot",
+      "role": "沙箱验证 Bot",
+      "responsibility": "在隔离沙箱中运行历史规则样本回归，输出基线判定与端到端验证结果",
+      "knowledge_boundary": "仅允许访问规则库和模拟数据集，不能访问实时生产计划和调度表"
+    },
+    {
+      "id": "bot_scheduler",
+      "kind": "bot",
+      "role": "维护调度 Bot",
+      "responsibility": "跟踪维护窗口任务，更新状态并记录后续待办",
+      "knowledge_boundary": "只能读取任务状态和调度表，不能访问沙箱验证细节和模型重炼内部参数"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_main",
+      "title": "设备维护规则沙箱回归与模型收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "sample_submission",
+      "prompt_type": "new_topic",
+      "thread_id": "t_main",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "u_engineer"
+      ],
+      "truth": {
+        "sample_list": [
+          "压缩机冷却规则_v2",
+          "轴承温度规则_v1",
+          "振动阈值规则_v3"
+        ],
+        "sample_target": "sandbox",
+        "status": "pending"
+      },
+      "communication_goal": "设备维护负责人提出将历史规则样本导入沙箱回归，维护工程师提供样本清单",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "provided_samples",
+          "value": [
+            "压缩机冷却规则_v2",
+            "轴承温度规则_v1",
+            "振动阈值规则_v3"
+          ]
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "sandbox_status",
+          "value": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "baseline_failure",
+      "prompt_type": "bot_response",
+      "thread_id": "t_main",
+      "offset_minutes": 30,
+      "actors": [
+        "bot_sandbox",
+        "u_engineer"
+      ],
+      "truth": {
+        "baseline_status": "failed",
+        "root_cause": "缺少轴承温度判据",
+        "failed_case_ids": [
+          "case_2019_compressor_overheat"
+        ],
+        "source_used": "历史规则样本回归"
+      },
+      "communication_goal": "沙箱 Bot 报告基线判定失败并复现根因，维护工程师确认需要补充判据",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "baseline_failure_report",
+          "value": "failed: missing bearing temperature criteria"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "baseline_status",
+          "value": "failed"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "root_cause",
+          "value": "缺少轴承温度判据"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "rule_gap",
+          "value": "待补充"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "rule_family_completion",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_main",
+      "offset_minutes": 60,
+      "actors": [
+        "u_engineer",
+        "u_owner",
+        "u_planner"
+      ],
+      "truth": {
+        "completed_rule_family": [
+          "轴承温度判据",
+          "振动加速度判据",
+          "润滑油压判据",
+          "单次运行时长判据"
+        ],
+        "previous_assumption": "仅缺温度判据",
+        "status": "rules_updated"
+      },
+      "communication_goal": "维护工程师纠正根因范围，补充完整判定族，设备维护负责人确认规则更新，生产调度员评估停机影响",
+      "message_count": {
+        "min": 3,
+        "max": 6
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "completed_rule_family",
+          "value": [
+            "轴承温度判据",
+            "振动加速度判据",
+            "润滑油压判据",
+            "单次运行时长判据"
+          ]
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "root_cause_scope",
+          "value": "从单一温度判据扩展为完整判定族"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "e2e_validation",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_main",
+      "offset_minutes": 120,
+      "actors": [
+        "u_engineer",
+        "bot_sandbox"
+      ],
+      "truth": {
+        "e2e_status": "passed",
+        "passed_cases": 18,
+        "failed_cases": 0,
+        "validation_version": "rule_family_v4"
+      },
+      "communication_goal": "维护工程师回复沙箱 Bot 的验证请求，确认端到端验证通过，可以提交新规则",
+      "message_count": {
+        "min": 2,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "e2e_validation_report",
+          "value": "passed with 18/18 cases"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "e2e_status",
+          "value": "passed"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "submit_rule_family",
+          "value": "rule_family_v4"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "model_refine_pending",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_main",
+      "offset_minutes": 180,
+      "actors": [
+        "u_owner",
+        "u_engineer",
+        "bot_scheduler"
+      ],
+      "truth": {
+        "submission_status": "submitted",
+        "model_refine_status": "in_progress",
+        "expected_closure": "待真模型重炼完成后另行收口"
+      },
+      "communication_goal": "确认新规则已提交，剩余寿命模型重炼在后台进行，维护调度 Bot 记录后续收口待办",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "submission_status",
+          "value": "submitted"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "model_refine_owner",
+          "value": "u_engineer"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "model_refine_status",
+          "value": "in_progress"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "端到端验证是否通过",
+      "answer_path": "event:ev_04.truth.e2e_status",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "根因是什么",
+      "answer_path": "event:ev_02.truth.root_cause",
+      "evidence_event_ids": [
+        "ev_02"
+      ]
+    },
+    {
+      "hook": "真模型重炼是否完成",
+      "answer_path": "event:ev_05.truth.model_refine_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "哪些判定族被补齐",
+      "answer_path": "event:ev_03.truth.completed_rule_family",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-13T09:00:00+08:00",
+      "content": "@u_engineer 我们整理下历史规则样本，导到沙箱跑一遍回归吧，确认没问题再排维护窗口。",
+      "reply_to": null,
+      "mentions": [
+        "u_engineer"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T09:01:00+08:00",
+      "content": "行，历史规则我这边有三套：压缩机冷却规则_v2、轴承温度规则_v1、振动阈值规则_v3，先导沙箱做回归？",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_main",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-13T09:02:00+08:00",
+      "content": "对，就这三套。跑完把回归结果同步我。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T09:30:00+08:00",
+      "content": "@bot_sandbox 三套历史规则样本已导进沙箱，跑下回归，重点关注压缩机过热场景。",
+      "reply_to": null,
+      "mentions": [
+        "bot_sandbox"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "bot_sandbox",
+      "timestamp": "2026-09-13T09:31:00+08:00",
+      "content": "@u_engineer 回归完成，基线判定失败。case_2019_compressor_overheat 复现，根因是缺少轴承温度判据。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "u_engineer"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T09:32:00+08:00",
+      "content": "确认，那先补轴承温度判据，补完你这边再跑一轮回归。",
+      "reply_to": "m_0005",
+      "mentions": [
+        "bot_sandbox"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T10:00:00+08:00",
+      "content": "等下，我刚说的不完整。重新核对历史规则后，不止轴承温度缺，振动加速度、润滑油压、单次运行时长也都没有判据，是一整套判定族都要补。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-13T10:01:00+08:00",
+      "content": "那规则更新范围就不是单点了，是整个判定族。我按这个范围重新评估维护窗口，确认后同步。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_planner",
+      "timestamp": "2026-09-13T10:02:00+08:00",
+      "content": "如果一次补四个判据，停机时间大概率超过原计划窗口。我先排一下可调整的时段，稍后给方案。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T10:03:00+08:00",
+      "content": "对，涉及四个判据的补充，工作量比之前大。具体停机时长你们定，我这边按完整清单补规则。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T11:00:00+08:00",
+      "content": "判定族补完了，@bot_sandbox 跑下端到端验证，确认通过就能提交。",
+      "reply_to": "m_0010",
+      "mentions": [
+        "bot_sandbox"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_main",
+      "author_id": "bot_sandbox",
+      "timestamp": "2026-09-13T11:01:00+08:00",
+      "content": "端到端验证完成，rule_family_v4 全量通过，18个用例全部通过。",
+      "reply_to": "m_0011",
+      "mentions": [
+        "u_engineer"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T11:02:00+08:00",
+      "content": "好，验证通过，可以提交新规则了。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "u_engineer",
+      "timestamp": "2026-09-13T12:00:00+08:00",
+      "content": "rule_family_v4 已提交，剩余寿命模型重炼还在后台跑，收口等它完成后再定。",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-13T12:01:00+08:00",
+      "content": "好，窗口先按提交态挂起，等重炼完成再收口。@bot_scheduler 记下后续待办。",
+      "reply_to": "m_0014",
+      "mentions": [
+        "bot_scheduler"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_main",
+      "author_id": "bot_scheduler",
+      "timestamp": "2026-09-13T12:02:00+08:00",
+      "content": "收到，已记录：rule_family_v4已提交，剩余寿命模型重炼进行中，收口时间待完成后另行确认。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "provided_samples": [
+        "压缩机冷却规则_v2",
+        "轴承温度规则_v1",
+        "振动阈值规则_v3"
+      ],
+      "baseline_status": "failed",
+      "root_cause": "缺少轴承温度判据",
+      "e2e_status": "passed",
+      "submission_status": "submitted"
+    },
+    "decisions": {
+      "completed_rule_family": [
+        "轴承温度判据",
+        "振动加速度判据",
+        "润滑油压判据",
+        "单次运行时长判据"
+      ],
+      "submit_rule_family": "rule_family_v4"
+    },
+    "open_questions": {
+      "sandbox_status": "pending",
+      "rule_gap": "待补充",
+      "model_refine_status": "in_progress"
+    },
+    "commitments": {
+      "model_refine_owner": "u_engineer"
+    },
+    "bot_outputs": {
+      "baseline_failure_report": "failed: missing bearing temperature criteria",
+      "e2e_validation_report": "passed with 18/18 cases"
+    },
+    "corrections": {
+      "root_cause_scope": "从单一温度判据扩展为完整判定族"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

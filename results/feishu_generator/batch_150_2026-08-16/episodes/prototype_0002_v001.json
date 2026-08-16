@@ -1,0 +1,508 @@
+{
+  "scenario": "客户续约折扣审批复核收口",
+  "prototype_trace": {
+    "prototype_id": "prototype_0002",
+    "source_task_ids": [
+      "task_0004",
+      "task_0008"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 1；使用“客户续约风险与折扣审批”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_sales",
+      "kind": "human",
+      "role": "销售负责人",
+      "responsibility": "发起续约折扣申请，与客户沟通商务条款，并做最终收口确认",
+      "knowledge_boundary": "熟悉客户续约诉求和折扣空间，不了解法务合规细则和财务毛利率模型"
+    },
+    {
+      "id": "u_csm",
+      "kind": "human",
+      "role": "客户成功经理",
+      "responsibility": "补充客户续约背景、历史合作情况和后续落地跟进",
+      "knowledge_boundary": "掌握客户合作历史与续约意愿，不参与折扣规则配置和审批政策制定"
+    },
+    {
+      "id": "u_legal",
+      "kind": "human",
+      "role": "法务合规官",
+      "responsibility": "审核折扣申请是否存在合规风险、合同条款冲突",
+      "knowledge_boundary": "了解合同合规要求，不掌握具体销售价格策略和财务影响"
+    },
+    {
+      "id": "u_finance",
+      "kind": "human",
+      "role": "财务分析师",
+      "responsibility": "评估折扣对续约毛利率和年度收入的影响",
+      "knowledge_boundary": "掌握成本与毛利模型，不直接访问客户信用和逾期数据"
+    },
+    {
+      "id": "bot_risk",
+      "kind": "bot",
+      "role": "风险数据 Bot",
+      "responsibility": "查询并返回客户风险等级、逾期月份和信用状态",
+      "knowledge_boundary": "仅能读取 CRM 风险数据库，不知道折扣审批政策和审批结论"
+    },
+    {
+      "id": "bot_approval",
+      "kind": "bot",
+      "role": "审批 Bot",
+      "responsibility": "执行折扣规则校验，检查政策偏差和缺失材料",
+      "knowledge_boundary": "仅知道折扣政策规则和提交材料清单，不知道客户风险详情及人工会商内容"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_renewal",
+      "title": "客户续约折扣审批"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "submit_review",
+      "prompt_type": "new_topic",
+      "thread_id": "t_renewal",
+      "offset_minutes": 0,
+      "actors": [
+        "u_sales",
+        "u_csm",
+        "bot_risk"
+      ],
+      "truth": {
+        "request_id": "REQ-2024-0158",
+        "customer": "智远科技",
+        "requested_discount_percent": 12,
+        "status": "待复核",
+        "risk_level": "待查询"
+      },
+      "communication_goal": "销售负责人提交续约折扣审批单，客户成功经理补充续约背景，并触发风险数据 Bot 查询客户风险",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "request_id",
+          "value": "REQ-2024-0158"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "risk_level",
+          "value": "待查询"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "risk_query_result",
+      "prompt_type": "bot_response",
+      "thread_id": "t_renewal",
+      "offset_minutes": 5,
+      "actors": [
+        "bot_risk",
+        "u_sales",
+        "u_csm"
+      ],
+      "truth": {
+        "customer_risk": "低",
+        "overdue_months": 0,
+        "credit_status": "正常",
+        "bot_correctness": true
+      },
+      "communication_goal": "风险数据 Bot 返回客户风险等级为低且无逾期，为后续规则验证提供输入",
+      "message_count": {
+        "min": 1,
+        "max": 2
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "customer_risk",
+          "value": "低"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "risk_query_result",
+          "value": "风险低且无逾期"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "rule_validation",
+      "prompt_type": "bot_response",
+      "thread_id": "t_renewal",
+      "offset_minutes": 8,
+      "actors": [
+        "bot_approval",
+        "u_sales",
+        "u_finance"
+      ],
+      "truth": {
+        "validation_status": "PASS",
+        "rule_violations": [],
+        "missing_documents": [],
+        "bot_correctness": true
+      },
+      "communication_goal": "审批 Bot 完成折扣规则校验，确认无政策违反、无缺失材料，输出验证通过结论",
+      "message_count": {
+        "min": 1,
+        "max": 2
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "validation_status",
+          "value": "PASS"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "待人工确认"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "human_confirm_no_pending",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_renewal",
+      "offset_minutes": 25,
+      "actors": [
+        "u_legal",
+        "u_finance",
+        "u_csm"
+      ],
+      "truth": {
+        "legal_review": "clear",
+        "finance_impact": "acceptable",
+        "status": "确认无待处置项"
+      },
+      "communication_goal": "法务确认无合规风险，财务确认折扣对毛利率影响可接受，人工复核确认无待处置项",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "legal_review",
+          "value": "clear"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "finance_impact",
+          "value": "acceptable"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "可收口"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "direct_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_renewal",
+      "offset_minutes": 30,
+      "actors": [
+        "u_sales",
+        "u_csm",
+        "bot_approval"
+      ],
+      "truth": {
+        "final_status": "approved",
+        "approval_owner": "u_sales",
+        "effective_at": "2024-06-01"
+      },
+      "communication_goal": "销售负责人最终确认审批通过，审批 Bot 更新状态，客户成功经理记录续约跟进动作",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "approval_status",
+          "value": "approved"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "approval_owner",
+          "value": "u_sales"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "renewal_followup_owner",
+          "value": "u_csm"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "批次是否直接收口",
+      "answer_path": "event:ev_05.truth.final_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "是否存在待处置项",
+      "answer_path": "event:ev_03.truth.validation_status",
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "谁完成最终核验",
+      "answer_path": "event:ev_05.truth.approval_owner",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "episode_id": "ep_prototype_0002_v001",
+  "start_time": "2026-09-02T09:00:00+08:00",
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-02T09:00:00+08:00",
+      "content": "智远科技那个续约折扣单 REQ-2024-0158 我提交了，申请12%，大家有空帮忙复核下？",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_csm",
+      "timestamp": "2026-09-02T09:01:00+08:00",
+      "content": "客户合作三年了，续约意愿很强，历史付款正常。12%是商务谈下来的，我这边认可，支持审批。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-02T09:02:00+08:00",
+      "content": "@bot_risk 那麻烦查下智远科技的风险等级，没问题我就推审批了。",
+      "reply_to": null,
+      "mentions": [
+        "bot_risk"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_renewal",
+      "author_id": "bot_risk",
+      "timestamp": "2026-09-02T09:03:00+08:00",
+      "content": "收到，正在查询智远科技风险数据。当前CRM中风险等级：待查询，有结果我再同步。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_renewal",
+      "author_id": "bot_risk",
+      "timestamp": "2026-09-02T09:05:00+08:00",
+      "content": "智远科技查询结果：风险等级低，逾期0个月，信用状态正常。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_renewal",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-02T09:06:00+08:00",
+      "content": "收到，数据没问题我就推审批了。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_renewal",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-02T09:08:00+08:00",
+      "content": "@bot_approval 麻烦对 REQ-2024-0158 做下折扣规则校验，看有没有政策违反或材料缺失。",
+      "reply_to": null,
+      "mentions": [
+        "bot_approval"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_renewal",
+      "author_id": "bot_approval",
+      "timestamp": "2026-09-02T09:09:00+08:00",
+      "content": "校验通过：REQ-2024-0158 无政策违反，材料完整，可进入审批。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "u_legal",
+      "timestamp": "2026-09-02T09:25:00+08:00",
+      "content": "REQ-2024-0158 合同条款我核过了，没有冲突，合规上没问题。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-02T09:26:00+08:00",
+      "content": "毛利率影响我也测了，可接受，财务这关过。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_renewal",
+      "author_id": "u_csm",
+      "timestamp": "2026-09-02T09:27:00+08:00",
+      "content": "行，我这边没有待处置项，收口吧。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_05",
+      "thread_id": "t_renewal",
+      "author_id": "u_sales",
+      "timestamp": "2026-09-02T09:30:00+08:00",
+      "content": "@bot_approval 最终确认：REQ-2024-0158 通过，6月1号生效，更新状态吧。",
+      "reply_to": null,
+      "mentions": [
+        "bot_approval"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_renewal",
+      "author_id": "bot_approval",
+      "timestamp": "2026-09-02T09:31:00+08:00",
+      "content": "已更新：REQ-2024-0158 审批通过，生效日期2024-06-01。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_renewal",
+      "author_id": "u_csm",
+      "timestamp": "2026-09-02T09:32:00+08:00",
+      "content": "好，我按6月1号生效排续约跟进，合同和交付对接我来盯。",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "request_id": "REQ-2024-0158",
+      "customer_risk": "低",
+      "legal_review": "clear",
+      "finance_impact": "acceptable"
+    },
+    "decisions": {
+      "approval_status": "approved",
+      "approval_owner": "u_sales"
+    },
+    "open_questions": {
+      "risk_level": "待查询",
+      "final_status": "可收口"
+    },
+    "commitments": {
+      "renewal_followup_owner": "u_csm"
+    },
+    "bot_outputs": {
+      "risk_query_result": "风险低且无逾期",
+      "validation_status": "PASS"
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

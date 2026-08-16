@@ -1,0 +1,572 @@
+{
+  "episode_id": "ep_prototype_0008_v002",
+  "scenario": "跨团队数据权限申请与回收中的数据重跑异常与可信度停摆",
+  "start_time": "2026-09-16T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "业务负责人",
+      "responsibility": "最终决策是否继续重跑及审批真实性核查",
+      "knowledge_boundary": "了解重跑业务影响，不知道权限审批的技术细节和管线配置"
+    },
+    {
+      "id": "u_analyst",
+      "kind": "human",
+      "role": "业务分析师",
+      "responsibility": "提出重跑需求并解释数据口径",
+      "knowledge_boundary": "知道分析需求，不知道沙箱材料的真伪"
+    },
+    {
+      "id": "u_data_owner",
+      "kind": "human",
+      "role": "数据平台负责人",
+      "responsibility": "负责重跑任务调度和权限协作",
+      "knowledge_boundary": "知道平台/管线细节，不知道合规审计材料细节"
+    },
+    {
+      "id": "u_upstream_owner",
+      "kind": "human",
+      "role": "上游数据团队负责人",
+      "responsibility": "负责提供数据权限交付并确保消息送达",
+      "knowledge_boundary": "知道自己的交付状态，不知道下游重跑和使用场景"
+    },
+    {
+      "id": "u_compliance",
+      "kind": "human",
+      "role": "安全合规专员",
+      "responsibility": "负责权限审批与审计",
+      "knowledge_boundary": "知道审批材料和审计结果，不知道重跑技术细节"
+    },
+    {
+      "id": "bot_permission",
+      "kind": "bot",
+      "role": "权限 Bot",
+      "responsibility": "自动检查权限窗口和审批状态",
+      "knowledge_boundary": "仅访问权限申请与审批记录，不访问管线任务日志"
+    },
+    {
+      "id": "bot_pipeline",
+      "kind": "bot",
+      "role": "数据管线 Bot",
+      "responsibility": "执行重跑任务并上报任务状态",
+      "knowledge_boundary": "仅访问管线配置和任务日志，不访问审批材料内容"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_rerun",
+      "title": "Q3 数据重跑执行"
+    },
+    {
+      "thread_id": "t_permission",
+      "title": "跨团队数据权限申请与回收"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "start_rerun",
+      "prompt_type": "new_topic",
+      "thread_id": "t_rerun",
+      "offset_minutes": 0,
+      "actors": [
+        "u_analyst",
+        "u_data_owner",
+        "bot_pipeline"
+      ],
+      "truth": {
+        "rerun_scope": "Q3 全部指标",
+        "permission_requested": true,
+        "started": true,
+        "status": "运行中"
+      },
+      "communication_goal": "分析师申请启动 Q3 数据重跑，数据负责人确认需要跨团队权限，管线 Bot 创建重跑任务。",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "待确认"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "rerun_task",
+          "value": "Q3 重跑启动"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "permission_window_truncated",
+      "prompt_type": "bot_response",
+      "thread_id": "t_permission",
+      "offset_minutes": 25,
+      "actors": [
+        "bot_permission",
+        "u_data_owner",
+        "u_compliance"
+      ],
+      "truth": {
+        "window_expected": "2026-09-01T09:00:00+08:00 至 2026-09-08T09:00:00+08:00",
+        "window_effective": "2026-09-01T09:00:00+08:00 至 2026-09-03T09:00:00+08:00",
+        "fixed": true,
+        "window_after_fix": "2026-09-01T09:00:00+08:00 至 2026-09-08T09:00:00+08:00"
+      },
+      "communication_goal": "权限 Bot 检测到权限窗口被静默截断，数据负责人确认修复为完整窗口，合规专员知情。",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "permission_window_issue",
+          "value": "窗口被静默截断"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "permission_window_fixed",
+          "value": true
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "fix_approver",
+          "value": "u_data_owner"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "upstream_delivery_fix",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_rerun",
+      "offset_minutes": 60,
+      "actors": [
+        "u_data_owner",
+        "u_upstream_owner",
+        "bot_pipeline"
+      ],
+      "truth": {
+        "missed_message": true,
+        "delivery_source": "u_upstream_owner",
+        "retry_failed": true,
+        "delivery_resent": true,
+        "rerun_resumed": true
+      },
+      "communication_goal": "数据负责人指出重跑任务未收到上游权限交付消息，上游负责人确认补推，管线 Bot 确认重跑恢复。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "upstream_delivery_fixed",
+          "value": true
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "rerun_status",
+          "value": "已恢复"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "fabricated_material_discovered",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_permission",
+      "offset_minutes": 120,
+      "actors": [
+        "u_compliance",
+        "u_data_owner",
+        "u_analyst"
+      ],
+      "truth": {
+        "previous_assumption": "审批材料齐全",
+        "fabricated_material": true,
+        "material_type": "沙箱访问审批单",
+        "forged_by": "未知",
+        "approval_valid": false
+      },
+      "communication_goal": "合规专员发现沙箱访问审批材料系编造，纠正之前材料齐全的假设，分析师确认未提交真实材料。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "fabricated_material",
+          "value": true
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "approval_valid",
+          "value": false
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "decision_owner",
+          "value": "待业务负责人决策"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "rerun_suspension",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_rerun",
+      "offset_minutes": 180,
+      "actors": [
+        "u_data_owner",
+        "u_analyst",
+        "u_compliance",
+        "u_owner",
+        "bot_pipeline"
+      ],
+      "truth": {
+        "suspension_reason": "沙箱审批材料编造，数据可信度存疑",
+        "credible_result_produced": false,
+        "repairs_applied": [
+          "permission_window_fixed",
+          "upstream_delivery_fixed"
+        ],
+        "decision_made": false,
+        "status": "已暂停"
+      },
+      "communication_goal": "数据负责人宣布暂停重跑并等待业务负责人决策，业务负责人确认待定，管线 Bot 暂停任务。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "rerun_status",
+          "value": "已暂停"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "等待用户决策"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "最终是否产出可信结果",
+      "answer_path": "event:ev_05.truth.credible_result_produced",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "哪些修复措施已落地",
+      "answer_path": "event:ev_05.truth.repairs_applied",
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03",
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "为什么停摆",
+      "answer_path": "event:ev_05.truth.suspension_reason",
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "用户是否已决策",
+      "answer_path": "event:ev_05.truth.decision_made",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "prototype_trace": {
+    "prototype_id": "prototype_0008",
+    "source_task_ids": [
+      "task_0021"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "knowledge_absence",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 2；使用“跨团队数据权限申请与回收”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_rerun",
+      "author_id": "u_analyst",
+      "timestamp": "2026-09-16T09:00:00+08:00",
+      "content": "Q3全量指标需要重跑，@数据负责人 能安排下吗？",
+      "reply_to": null,
+      "mentions": [
+        "u_data_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_rerun",
+      "author_id": "u_data_owner",
+      "timestamp": "2026-09-16T09:01:00+08:00",
+      "content": "可以，但需要跨团队权限，我提交申请。@bot_pipeline 先创建重跑任务，范围Q3全部指标。",
+      "reply_to": "m_0001",
+      "mentions": [
+        "bot_pipeline"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_rerun",
+      "author_id": "bot_pipeline",
+      "timestamp": "2026-09-16T09:02:00+08:00",
+      "content": "已创建重跑任务，范围Q3全部指标，任务已启动，当前运行中。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_permission",
+      "author_id": "bot_permission",
+      "timestamp": "2026-09-16T09:25:00+08:00",
+      "content": "检测到 Q3 重跑权限窗口被截断，实际生效至 09-03，申请至 09-08。请确认是否调整。@数据负责人",
+      "reply_to": null,
+      "mentions": [
+        "u_data_owner"
+      ],
+      "message_kind": "bot",
+      "write_policy": "candidate",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_permission",
+      "author_id": "u_data_owner",
+      "timestamp": "2026-09-16T09:26:00+08:00",
+      "content": "是配置错了，我改回完整窗口。@权限Bot 等生效后重新校验下。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "bot_permission"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_permission",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-16T09:27:00+08:00",
+      "content": "收到，窗口按 09-01 到 09-08 备案了。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_rerun",
+      "author_id": "u_data_owner",
+      "timestamp": "2026-09-16T10:00:00+08:00",
+      "content": "@上游负责人 重跑任务这边没收到权限交付消息，重试也失败了，能帮我补推一下吗？",
+      "reply_to": "m_0003",
+      "mentions": [
+        "u_upstream_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_rerun",
+      "author_id": "u_upstream_owner",
+      "timestamp": "2026-09-16T10:01:00+08:00",
+      "content": "可以，已补推，请查收。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_rerun",
+      "author_id": "bot_pipeline",
+      "timestamp": "2026-09-16T10:02:00+08:00",
+      "content": "收到补推，重跑任务已恢复，继续执行中。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_permission",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-16T11:00:00+08:00",
+      "content": "更正一下：之前按'材料齐全'备案不对，刚审计发现沙箱访问审批单是编造的，没有真实审批记录。那条要作废。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_permission",
+      "author_id": "u_analyst",
+      "timestamp": "2026-09-16T11:01:00+08:00",
+      "content": "啊？我确实没提交过沙箱访问的审批材料。之前你说材料齐全，我还以为流程走完了。那现在重跑用的沙箱权限是无效的？",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_permission",
+      "author_id": "u_data_owner",
+      "timestamp": "2026-09-16T11:02:00+08:00",
+      "content": "如果是这样，重跑任务要继续吗？我这边权限是按审批通过的配置的，审批无效的话结果还能不能算？",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_permission",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-16T11:03:00+08:00",
+      "content": "先暂停重跑，别把基于无效审批的结果当可信。等我把这次审计结论补完再决定后续。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_rerun",
+      "author_id": "u_data_owner",
+      "timestamp": "2026-09-16T12:00:00+08:00",
+      "content": "明白，重跑任务先暂停，避免产出不可信结果。@u_owner 是否继续重跑需要你最终决策，在你确认前我不恢复调度。@bot_pipeline 暂停当前重跑任务。",
+      "reply_to": "m_0013",
+      "mentions": [
+        "u_owner",
+        "bot_pipeline"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_rerun",
+      "author_id": "bot_pipeline",
+      "timestamp": "2026-09-16T12:01:00+08:00",
+      "content": "收到，重跑任务已暂停，保持当前进度，等待后续指令。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_rerun",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-16T12:02:00+08:00",
+      "content": "确认，最终结论待定。我先同步业务影响，有结论再通知你。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "rerun_status": "已恢复",
+      "fabricated_material": true
+    },
+    "decisions": {
+      "fix_approver": "u_data_owner",
+      "rerun_status": "已暂停"
+    },
+    "open_questions": {
+      "final_status": "等待用户决策",
+      "decision_owner": "待业务负责人决策"
+    },
+    "commitments": {
+      "rerun_task": "Q3 重跑启动"
+    },
+    "bot_outputs": {
+      "permission_window_issue": "窗口被静默截断"
+    },
+    "corrections": {
+      "permission_window_fixed": true,
+      "upstream_delivery_fixed": true,
+      "approval_valid": false
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}
