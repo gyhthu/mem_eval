@@ -240,9 +240,20 @@ def ingest_dataset(
     workers: int,
     progress: ProgressCallback | None,
 ) -> dict[str, Any]:
+    """并发摄取全部消息，并在同一 episode + author 内保持消息顺序。
+
+    Mem0 的一次 add() 不只是保存原文：它会调用 LLM 抽取事实，并可能对同一用户已有
+    memory 执行 ADD/UPDATE/DELETE。因此相同 episode、相同 author 的消息必须串行处理；
+    不同分组之间则可以并发，以兼顾状态一致性和摄取速度。
+    """
+    # manifest 记录已经成功处理的 message key。任务中断后重新运行时，会跳过这些消息，
+    # 不需要从 284 条消息的第一条重新开始。
     manifest_path, manifest = load_or_create_manifest(store_dir, data, info)
     messages = flattened_messages(data)
     completed_keys = set(manifest.get("completed_message_keys") or [])
+
+    # 每个 deque 是一条必须按原始顺序消费的队列。分组键包含 episode_id，是为了避免
+    # 不同 episode 中相同 author_id 的状态互相影响；同组消息不允许同时执行 memory.add()。
     groups: dict[str, deque[dict[str, Any]]] = defaultdict(deque)
     for message in messages:
         if message_key(message) not in completed_keys:
@@ -257,11 +268,19 @@ def ingest_dataset(
     extracted = int(manifest.get("extracted_memories") or 0)
     total = len(messages)
     completed_count = len(completed_keys)
+
+    # ready 保存“当前可以提交下一条消息”的分组键。一个 group 只有在上一条消息完成后，
+    # 才会重新放回 ready，所以不同 group 可并发、同一 group 始终串行。
     ready = deque(groups)
+
+    # executor.submit() 会立即返回 Future，Future 可以理解为“后台任务结果的占位符”。
+    # active 用 Future 反查它属于哪个 group、处理哪条 message，任务完成后才能正确记账。
     active: dict[Future[tuple[int, Counter[str]]], tuple[str, dict[str, Any]]] = {}
     first_error: tuple[dict[str, Any], Exception] | None = None
 
     def record(message: dict[str, Any], added: int, events: Counter[str]) -> None:
+        # nonlocal 表示这里修改的是 ingest_dataset() 外层的两个局部变量，而不是创建
+        # record() 自己的新局部变量。
         nonlocal extracted, completed_count
         key = message_key(message)
         completed_keys.add(key)
@@ -293,27 +312,39 @@ def ingest_dataset(
             )
 
     def submit_ready(executor: ThreadPoolExecutor) -> None:
+        # 只要还有空闲 worker，就从不同的 ready group 各取一条消息提交。
+        # executor.submit(...) 不会在这里等待 LLM 完成，而是把 Future 放进 active。
         while ready and len(active) < workers:
             group = ready.popleft()
             message = groups[group].popleft()
             active[executor.submit(ingest_one, memory, message)] = (group, message)
 
+    # with 代码块退出时，ThreadPoolExecutor 会等待已提交任务结束并释放线程。
     with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
         submit_ready(executor)
         while active:
+            # 字典迭代默认遍历 key，因此 wait(active, ...) 实际等待的是 active 中的 Future。
+            # FIRST_COMPLETED 表示任意一个任务完成就立即返回；done 是已完成的 Future 集合，
+            # 第二个返回值是尚未完成的集合，这里用下划线表示不需要直接使用。
             done, _ = wait(active, return_when=FIRST_COMPLETED)
             for future in done:
                 group, message = active.pop(future)
                 try:
+                    # result() 取回 ingest_one() 的返回值；如果后台线程抛异常，会在这里
+                    # 重新抛出，从而进入下面的 except。
                     added, events = future.result()
                 except Exception as exc:
                     if first_error is None:
                         first_error = (message, exc)
                     continue
                 record(message, added, events)
+
+                # 当前 group 的上一条消息已经完成，若队列里还有消息，才允许它重新竞争
+                # worker。这个“完成后再入队”就是同组串行的关键。
                 if first_error is None and groups[group]:
                     ready.append(group)
             if first_error is None:
+                # 用刚刚释放的 worker 槽位继续提交其他 ready group。
                 submit_ready(executor)
     if first_error:
         message, exc = first_error
