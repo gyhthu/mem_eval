@@ -373,6 +373,20 @@ with tab_results:
 
 with tab_leaderboard:
     st.subheader("Leaderboard")
+    with st.expander("评测指标说明", expanded=False):
+        st.markdown(
+            """
+            | 指标 | 含义 | 如何理解 |
+            |---|---|---|
+            | **Top K** | Memory 系统最多返回的消息数量 | Top K = 3 表示只给 Reader 前 3 条检索结果。不同 Top K 必须分开比较。 |
+            | **Hit@K** | Top K 中是否至少包含一条 Oracle 证据消息，再对全部题目取平均 | 衡量“有没有找到证据”；命中一条即记为 1，否则为 0。 |
+            | **Recall@K** | Top K 命中的 Oracle 证据数 ÷ 该题全部 Oracle 证据数，再对全部题目取平均 | 衡量“证据找得全不全”；多跳问题通常需要较高 Recall。 |
+            | **MRR** | 第一条 Oracle 证据排名的倒数，再对全部题目取平均 | 第一名命中得 1，第二名得 0.5，未命中得 0；越高说明正确证据越靠前。 |
+            | **Answer Accuracy** | Reader 答案被 LLM Judge 判定为正确的题数 ÷ 总题数 | 端到端指标，同时受检索质量、Reader 推理和 Judge 判定影响。 |
+
+            **注意：** Hit@K 高不代表答案一定正确。只命中一条证据时，可能仍缺少多跳问题的其他证据；Reader 也可能在证据充分时推理错误。
+            """
+        )
     runs = list_runs()
     if not runs:
         st.info("完成至少一次评测后显示排名。")
