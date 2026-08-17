@@ -66,6 +66,7 @@ def run_evaluation(
     limit: int = 0,
     progress: ProgressCallback | None = None,
     memory_concurrency: int = 4,
+    env_file: Path | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     if method_id not in MEMORY_SYSTEMS:
         raise ValueError(f"unknown memory system: {method_id}")
@@ -80,6 +81,7 @@ def run_evaluation(
             run_name=run_name,
             limit=limit,
             ingest_workers=memory_concurrency,
+            env_file=env_file,
             progress=progress,
         )
     if method_id == "teamagent":
@@ -90,6 +92,18 @@ def run_evaluation(
             top_k=top_k,
             run_name=run_name,
             limit=limit,
+            progress=progress,
+        )
+    if method_id == "mindmemos":
+        from eval_platform.mindmemos_eval import run_mindmemos_retrieval
+
+        return run_mindmemos_retrieval(
+            data=data,
+            top_k=top_k,
+            run_name=run_name,
+            limit=limit,
+            ingest_workers=memory_concurrency,
+            env_file=env_file,
             progress=progress,
         )
     questions = data.questions[:limit] if limit > 0 else data.questions
@@ -228,6 +242,7 @@ def main() -> int:
             f"[{current}/{total}] {row['question_id']} hit={row['hit_at_k']}"
         ),
         memory_concurrency=args.memory_concurrency,
+        env_file=Path(args.env_file),
     )
     print(json.dumps(result["summary"], ensure_ascii=False, indent=2))
     print(f"saved: {output}")

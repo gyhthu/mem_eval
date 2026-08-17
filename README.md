@@ -4,8 +4,8 @@
 
 - 172 道飞书群聊 Memory 问题
 - 18 条 episode 历史轨迹、284 条消息
-- BM25 RAG、Mem0、TeamAgent Memory 三种方法
-- Top K = 3 / 10 的完整预置结果、Badcase 和 Leaderboard
+- BM25 RAG、Mem0、TeamAgent Memory、MindMemOS 四种方法
+- BM25、Mem0、TeamAgent 的 Top K = 3 / 10 完整预置结果、Badcase 和 Leaderboard
 - 可选的 Reader + LLM Judge 端到端评测
 
 只浏览题库、预置结果和 Leaderboard **不需要 API Key，也不访问公网**。
@@ -77,6 +77,10 @@ MEM_EVAL_IMAGE=ghcr.io/gyhthu/mem_eval:latest \
 `http://<服务电脑内网IP>:8501`。离线镜像已包含代码、依赖、题库、预置结果和 Mem0
 中文 Embedding 模型，启动时不访问 PyPI 或 Hugging Face。
 
+MindMemOS 本身是独立服务，依赖 Qdrant、Neo4j、Kafka 和模型服务，不包含在本平台镜像中。
+如需现场重新运行 MindMemOS，请先在内网部署 MindMemOS，再通过下面的环境变量连接；已经
+生成并提交到本仓库的完整结果仍可离线浏览。
+
 ## 现场演示顺序（约 5 分钟）
 
 1. 打开“题库”：展示 172 题、题型筛选、标准答案和 Oracle 证据消息。
@@ -105,6 +109,38 @@ EVAL_JUDGE_MODEL=内网模型名
 
 `.env` 已被 Git 忽略，不要提交密钥。TeamAgent 还需要 OpenAI-compatible Embeddings
 接口；默认示例是本机 Ollama 的 `bge-m3`。
+
+## 接入 MindMemOS
+
+先按照 MindMemOS 仓库说明启动它的 FastAPI 服务。建议使用 `vanilla` API key，并把
+MindMemOS 服务端的 chat model 配成 `deepseek-v4-flash`。然后在本平台 `.env` 中设置：
+
+```text
+EVAL_MINDMEMOS_BASE_URL=http://127.0.0.1:18000
+EVAL_MINDMEMOS_API_KEY=替换为MindMemOS服务的API key
+EVAL_MINDMEMOS_MEMORY_MODEL=deepseek-v4-flash
+EVAL_MINDMEMOS_ALGORITHM=vanilla
+EVAL_MINDMEMOS_SEARCH_STRATEGY=fast
+EVAL_MINDMEMOS_RERANK=false
+```
+
+如果评测平台运行在 Docker、MindMemOS 运行在宿主机，macOS/Windows 请把地址写成
+`http://host.docker.internal:18000`；Linux 建议把两个服务放进同一个 Docker network，
+使用 MindMemOS 的容器服务名访问。
+
+命令行运行：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m eval_platform.runner \
+  --method mindmemos --top-k 3 --run-name "MindMemOS Top3" \
+  --memory-concurrency 4 --with-llm \
+  --reader-model deepseek-v4-flash --judge-model deepseek-v4-flash
+```
+
+适配器为每个 episode 建立独立共享作用域，并按提问时间 checkpoint 增量写入消息、立即
+缓存 Top100 检索结果，避免未来消息泄漏。源消息优先通过 MindMemOS 返回的
+`source_timestamp` 对齐，缺失时回退到本地 `memory_id -> source message_id` manifest。
+Top3 和 Top10 共用同一批 checkpoint 缓存，不会重复调用 MindMemOS。
 
 ## 常用检查
 

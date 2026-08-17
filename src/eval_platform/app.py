@@ -167,9 +167,17 @@ with tab_run:
                 "TeamAgent 会按每个提问时间生成 L2 群共享滚动摘要，并用 bge-m3 检索原始消息；"
                 "Reader 同时读取 L2 与 TopK。首次运行会生成并缓存约 88 个时间 checkpoint。"
             )
+        elif method_id == "mindmemos":
+            st.caption(
+                "MindMemOS 通过独立部署的 HTTP 服务构建和检索记忆；首次运行写入 284 条消息，"
+                "后续 Top3/Top10 共用本地 manifest。需要在 .env 配置服务地址和 API key。"
+            )
         top_k = st.slider("Top K", min_value=1, max_value=20, value=10)
         with_llm = st.checkbox("运行 Reader + Judge（端到端评测）", value=False)
-        st.caption("浏览预置结果或运行纯检索评测不需要 API Key；端到端评测需要先配置 .env。")
+        st.caption(
+            "浏览预置结果和运行 BM25 不需要 API Key；Mem0、TeamAgent、MindMemOS "
+            "或端到端 Reader/Judge 需要相应的本地/内网模型与服务配置。"
+        )
         llm_col_a, llm_col_b, llm_col_c = st.columns([2, 2, 1])
         reader_model = llm_col_a.text_input(
             "Reader model", value=os.environ.get("EVAL_READER_MODEL", "deepseek-v4-flash")
@@ -200,14 +208,19 @@ with tab_run:
                 f"hit={row['hit_at_k']}"
             )
 
-        output, result = run_evaluation(
-            data=data,
-            method_id=method_id,
-            top_k=top_k,
-            run_name=run_name,
-            progress=update_progress,
-            memory_concurrency=int(concurrency),
-        )
+        try:
+            output, result = run_evaluation(
+                data=data,
+                method_id=method_id,
+                top_k=top_k,
+                run_name=run_name,
+                progress=update_progress,
+                memory_concurrency=int(concurrency),
+                env_file=DEFAULT_ENV_FILE,
+            )
+        except (RuntimeError, ValueError) as exc:
+            st.error(f"评测启动失败：{exc}")
+            st.stop()
         if with_llm:
             progress_bar.progress(0.0, text="Reader + Judge 准备中")
 
@@ -378,9 +391,9 @@ with tab_leaderboard:
             """
             | 指标 | 含义 | 如何理解 |
             |---|---|---|
-            | **Top K** | Memory 系统最多返回的消息数量 | Top K = 3 表示只给 Reader 前 3 条检索结果。不同 Top K 必须分开比较。 |
-            | **Hit@K** | Top K 中是否至少包含一条 Oracle 证据消息，再对全部题目取平均 | 衡量“有没有找到证据”；命中一条即记为 1，否则为 0。 |
-            | **Recall@K** | Top K 命中的 Oracle 证据数 ÷ 该题全部 Oracle 证据数，再对全部题目取平均 | 衡量“证据找得全不全”；多跳问题通常需要较高 Recall。 |
+            | **Top K** | Memory 系统最多返回的证据单元数量 | BM25/TeamAgent 返回原消息，Mem0/MindMemOS 返回抽取后的记忆。Top K 不同必须分开比较。 |
+            | **Hit@K** | Top K 证据单元的源消息中是否至少包含一条 Oracle 证据，再对全部题目取平均 | 衡量“有没有找到证据”；命中一条即记为 1，否则为 0。 |
+            | **Recall@K** | Top K 证据单元关联的 Oracle 源消息数 ÷ 该题全部 Oracle 证据数，再取平均 | 衡量“证据找得全不全”；多跳问题通常需要较高 Recall。 |
             | **MRR** | 第一条 Oracle 证据排名的倒数，再对全部题目取平均 | 第一名命中得 1，第二名得 0.5，未命中得 0；越高说明正确证据越靠前。 |
             | **Answer Accuracy** | Reader 答案被 LLM Judge 判定为正确的题数 ÷ 总题数 | 端到端指标，同时受检索质量、Reader 推理和 Judge 判定影响。 |
 
@@ -412,6 +425,9 @@ with tab_leaderboard:
                 method.get("memory_llm_model"),
                 method.get("reader_model"),
                 method.get("judge_model"),
+                method.get("memory_algorithm"),
+                method.get("search_strategy"),
+                method.get("rerank"),
             )
             if configuration in seen_configurations:
                 continue

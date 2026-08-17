@@ -80,8 +80,15 @@ class TeamAgentMemorySystem:
     version = "teamagent_l2_bgem3_v1"
 
 
+class MindMemosMemorySystem:
+    method_id = "mindmemos"
+    display_name = "MindMemOS"
+    version = "mindmemos_http_v2_checkpoint_temporal"
+
+
 MEMORY_SYSTEMS = {
     BM25MemorySystem.method_id: BM25MemorySystem,
     Mem0MemorySystem.method_id: Mem0MemorySystem,
     TeamAgentMemorySystem.method_id: TeamAgentMemorySystem,
+    MindMemosMemorySystem.method_id: MindMemosMemorySystem,
 }
