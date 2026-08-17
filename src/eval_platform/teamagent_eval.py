@@ -337,17 +337,30 @@ def run_teamagent_retrieval(
     rows: list[dict[str, Any]] = []
     total = len(questions)
     for index, question in enumerate(questions, start=1):
+        # 检索隔离发生在这里：eligible_messages() 先用 question["episode_id"]
+        # 取出同一 episode 的消息，再去掉 checkpoint_time 之后的消息。
+        # 因此 eligible 不是全数据集的 284 条消息，而只是“同 episode + 时间可见”的候选集。
         eligible = eligible_messages(data, question)
+
+        # matrix 为了复用 Embedding 缓存，保存了全部 284 条消息的向量；但打分前会通过
+        # (episode_id, message_id) 复合键，只取 eligible 对应的向量行。message_id 会在
+        # 不同 episode 中重复，所以不能只用 message_id 定位。
         eligible_indices = [
             key_to_index[(str(question["episode_id"]), str(message.get("message_id") or ""))]
             for message in eligible
         ]
         query_vector = query_vectors[index - 1]
+
+        # 相似度只在 matrix[eligible_indices] 这个切片上计算，不会与其他 episode 的
+        # 消息比较。scores 和 eligible 顺序一一对应，随后从该候选集选择 Top K。
         scores = matrix[eligible_indices] @ query_vector
         order = np.argsort(-scores)[:top_k]
         retrieved_messages = [eligible[int(position)] for position in order]
         retrieved_scores = [float(scores[int(position)]) for position in order]
         retrieved_ids = [str(message.get("message_id") or "") for message in retrieved_messages]
+
+        # 以下只负责检索评估：把 Top K 与该题标注的 Oracle evidence message IDs 对齐，
+        # 计算 Hit@K、Recall@K 和第一条证据的倒数排名 MRR。
         evidence_ids = [str(value) for value in question.get("evidence_message_ids") or []]
         evidence_set = set(evidence_ids)
         matched = [value for value in retrieved_ids if value in evidence_set]
@@ -370,7 +383,11 @@ def run_teamagent_retrieval(
             "hit_at_k": bool(matched),
             "evidence_recall_at_k": len(set(matched)) / len(evidence_set) if evidence_set else 0.0,
             "reciprocal_rank": 1.0 / first_rank if first_rank else 0.0,
+            # L2 摘要的缓存键同样包含 episode_id + checkpoint_time，所以这里取到的
+            # memory_context 也只由当前 episode 在该时间点之前的历史消息蒸馏而成。
             "memory_context": summaries[checkpoint_key(question)],
+            # 保存同 episode 候选集中实际召回的原始消息，后续 Reader 会同时读取
+            # memory_context 和这些 Top K 原文来回答问题。
             "retrieved": [
                 {
                     "rank": rank,
