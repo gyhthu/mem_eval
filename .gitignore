@@ -5,6 +5,7 @@
 !.dockerignore
 !.env.example
 !README.md
+!eval_platform_discussion_summary.md
 !Dockerfile
 !docker-compose.yml
 !requirements.txt
