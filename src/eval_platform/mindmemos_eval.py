@@ -17,7 +17,8 @@ from eval_platform.data import BenchmarkData, answer_text, runs_dir
 from eval_platform.llm_eval import DEFAULT_ENV_FILE, load_env_file
 from eval_platform.runner import atomic_write_json, safe_run_name, summarize
 
-MINDMEMOS_ADAPTER_VERSION = "mindmemos_http_v2_checkpoint_temporal"
+MINDMEMOS_ADAPTER_VERSION = "mindmemos_http_v3_checkpoint_temporal_scoped"
+MINDMEMOS_SCOPE_VERSION = "v3"
 CACHE_TOP_K = 100
 ProgressCallback = Callable[[int, int, dict[str, Any]], None]
 
@@ -153,7 +154,9 @@ def config_fingerprint(config: dict[str, Any]) -> str:
 
 
 def namespace_for(data_digest: str, config: dict[str, Any]) -> str:
-    return str(config.get("namespace") or f"gmb-{data_digest}")
+    return str(
+        config.get("namespace") or f"gmb-{MINDMEMOS_SCOPE_VERSION}-{data_digest}"
+    )
 
 
 def scope_id(namespace: str, episode_id: str) -> str:
@@ -322,6 +325,15 @@ def search_body(
         "user_id": shared_scope,
         "session_id": shared_scope,
         "app_id": config["app_id"],
+        # MindMemOS vanilla search currently scopes its default filter only by
+        # project + active status. Actor fields are accepted in the request
+        # context but are not automatically added to the vector-store filter,
+        # so make the episode boundary explicit to prevent cross-episode recall.
+        "filters": {
+            "user_id": shared_scope,
+            "session_id": shared_scope,
+            "app_id": config["app_id"],
+        },
         "search_strategy": config["search_strategy"],
         "rerank": bool(config["rerank"]),
     }

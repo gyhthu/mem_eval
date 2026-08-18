@@ -101,7 +101,7 @@ with st.sidebar:
 st.title("飞书群聊 Memory 评测平台")
 st.markdown(
     '<div class="eval-note"><strong>完整评测链路</strong>　Memory 检索 → Reader 生成答案 → '
-    "Judge 对照标准答案。当前支持 BM25、Mem0 和 TeamAgent Memory；"
+    "Judge 对照标准答案。当前支持 BM25、Mem0、TeamAgent Memory 和 MindMemOS；"
     "Reader / Judge 均可配置为 DeepSeek V4 Flash。</div>",
     unsafe_allow_html=True,
 )

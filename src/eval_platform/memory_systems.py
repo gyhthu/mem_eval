@@ -83,7 +83,7 @@ class TeamAgentMemorySystem:
 class MindMemosMemorySystem:
     method_id = "mindmemos"
     display_name = "MindMemOS"
-    version = "mindmemos_http_v2_checkpoint_temporal"
+    version = "mindmemos_http_v3_checkpoint_temporal_scoped"
 
 
 MEMORY_SYSTEMS = {
