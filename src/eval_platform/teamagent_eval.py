@@ -11,11 +11,13 @@ from typing import Any, Callable, Sequence
 
 import numpy as np
 import requests
+from rank_bm25 import BM25Okapi
 
 from llm_utils import chat_completion_text, create_chat_client
 
 from eval_platform.data import BenchmarkData, answer_text, runs_dir
 from eval_platform.llm_eval import DEFAULT_ENV_FILE, resolve_llm_config
+from eval_platform.memory_systems import tokenize
 from eval_platform.runner import atomic_write_json, safe_run_name, summarize
 
 
@@ -24,6 +26,7 @@ DEFAULT_STORE_ROOT = REPO_ROOT / "results/eval_platform/teamagent"
 DEFAULT_EMBED_BASE_URL = "http://127.0.0.1:11434/v1"
 DEFAULT_EMBED_MODEL = "bge-m3"
 ADAPTER_VERSION = "teamagent_l2_bgem3_v1"
+BM25_ADAPTER_VERSION = "teamagent_l2_bm25_v1"
 PROMPT_VERSION = "teamagent_distill_exact_2026_08_16"
 ProgressCallback = Callable[[int, int, dict[str, Any]], None]
 
@@ -303,8 +306,11 @@ def run_teamagent_retrieval(
     run_name: str,
     limit: int = 0,
     env_file: Path | None = None,
+    retrieval_backend: str = "dense",
     progress: ProgressCallback | None = None,
 ) -> tuple[Path, dict[str, Any]]:
+    if retrieval_backend not in {"dense", "bm25"}:
+        raise ValueError(f"unsupported TeamAgent retrieval backend: {retrieval_backend}")
     config = resolve_llm_config(
         env_file=env_file or DEFAULT_ENV_FILE,
         reader_model="deepseek-v4-flash",
@@ -312,12 +318,15 @@ def run_teamagent_retrieval(
     )
     questions = data.questions[:limit] if limit > 0 else data.questions
     root = store_dir()
-    embedder = OpenAICompatibleEmbedder()
-    all_messages, matrix = load_or_build_embeddings(data, embedder, root)
-    key_to_index = {
-        (str(message["episode_id"]), str(message.get("message_id") or "")): index
-        for index, message in enumerate(all_messages)
-    }
+    embedder = OpenAICompatibleEmbedder() if retrieval_backend == "dense" else None
+    matrix: np.ndarray | None = None
+    key_to_index: dict[tuple[str, str], int] = {}
+    if embedder is not None:
+        all_messages, matrix = load_or_build_embeddings(data, embedder, root)
+        key_to_index = {
+            (str(message["episode_id"]), str(message.get("message_id") or "")): index
+            for index, message in enumerate(all_messages)
+        }
     distiller = TeamAgentDistiller(config)
     summaries, summary_path = load_or_build_summaries(
         data=data,
@@ -326,13 +335,12 @@ def run_teamagent_retrieval(
         root=root,
         progress=progress,
     )
-    query_vectors = embedder.embed(
-        [
-            f"{(question.get('query_context') or {}).get('query_user_id') or ''} "
-            f"{question['question']}".strip()
-            for question in questions
-        ]
-    )
+    queries = [
+        f"{(question.get('query_context') or {}).get('query_user_id') or ''} "
+        f"{question['question']}".strip()
+        for question in questions
+    ]
+    query_vectors = embedder.embed(queries) if embedder is not None else None
 
     rows: list[dict[str, Any]] = []
     total = len(questions)
@@ -342,19 +350,25 @@ def run_teamagent_retrieval(
         # 因此 eligible 不是全数据集的 284 条消息，而只是“同 episode + 时间可见”的候选集。
         eligible = eligible_messages(data, question)
 
-        # matrix 为了复用 Embedding 缓存，保存了全部 284 条消息的向量；但打分前会通过
-        # (episode_id, message_id) 复合键，只取 eligible 对应的向量行。message_id 会在
-        # 不同 episode 中重复，所以不能只用 message_id 定位。
-        eligible_indices = [
-            key_to_index[(str(question["episode_id"]), str(message.get("message_id") or ""))]
-            for message in eligible
-        ]
-        query_vector = query_vectors[index - 1]
-
-        # 相似度只在 matrix[eligible_indices] 这个切片上计算，不会与其他 episode 的
-        # 消息比较。scores 和 eligible 顺序一一对应，随后从该候选集选择 Top K。
-        scores = matrix[eligible_indices] @ query_vector
-        order = np.argsort(-scores)[:top_k]
+        if retrieval_backend == "dense":
+            # matrix 为了复用 Embedding 缓存，保存了全部 284 条消息的向量；但打分前会通过
+            # (episode_id, message_id) 复合键，只取 eligible 对应的向量行。
+            eligible_indices = [
+                key_to_index[
+                    (str(question["episode_id"]), str(message.get("message_id") or ""))
+                ]
+                for message in eligible
+            ]
+            assert matrix is not None and query_vectors is not None
+            scores = matrix[eligible_indices] @ query_vectors[index - 1]
+            order = np.argsort(-scores)[:top_k]
+        else:
+            # BM25 与 dense 版本使用完全相同的同 episode、提问时间前候选消息；只替换排序器。
+            bm25 = BM25Okapi(
+                [tokenize(str(message.get("content") or "")) for message in eligible]
+            )
+            scores = bm25.get_scores(tokenize(queries[index - 1]))
+            order = np.argsort(-scores)[:top_k]
         retrieved_messages = [eligible[int(position)] for position in order]
         retrieved_scores = [float(scores[int(position)]) for position in order]
         retrieved_ids = [str(message.get("message_id") or "") for message in retrieved_messages]
@@ -419,15 +433,20 @@ def run_teamagent_retrieval(
             "episode_count": len({row["episode_id"] for row in rows}),
         },
         "method": {
-            "method_id": "teamagent",
-            "display_name": "TeamAgent Memory",
-            "version": ADAPTER_VERSION,
+            "method_id": "teamagent_bm25" if retrieval_backend == "bm25" else "teamagent",
+            "display_name": (
+                "TeamAgent + BM25" if retrieval_backend == "bm25" else "TeamAgent Memory"
+            ),
+            "version": (
+                BM25_ADAPTER_VERSION if retrieval_backend == "bm25" else ADAPTER_VERSION
+            ),
             "top_k": top_k,
-            "evaluation_mode": "l2_summary_plus_dense_retrieval",
+            "evaluation_mode": f"l2_summary_plus_{retrieval_backend}_retrieval",
             "protocol_version": "feishu_eval_v2_temporal",
             "memory_llm_model": distiller.model,
-            "embedding_model": embedder.model,
-            "embedding_base_url": embedder.base_url,
+            "retrieval_backend": retrieval_backend,
+            "embedding_model": embedder.model if embedder is not None else None,
+            "embedding_base_url": embedder.base_url if embedder is not None else None,
             "l2_prompt_version": PROMPT_VERSION,
             "l2_checkpoint_count": len({checkpoint_key(question) for question in questions}),
             "l2_cache": str(summary_path),

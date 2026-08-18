@@ -80,6 +80,12 @@ class TeamAgentMemorySystem:
     version = "teamagent_l2_bgem3_v1"
 
 
+class TeamAgentBM25MemorySystem:
+    method_id = "teamagent_bm25"
+    display_name = "TeamAgent + BM25"
+    version = "teamagent_l2_bm25_v1"
+
+
 class MindMemosMemorySystem:
     method_id = "mindmemos"
     display_name = "MindMemOS"
@@ -90,5 +96,6 @@ MEMORY_SYSTEMS = {
     BM25MemorySystem.method_id: BM25MemorySystem,
     Mem0MemorySystem.method_id: Mem0MemorySystem,
     TeamAgentMemorySystem.method_id: TeamAgentMemorySystem,
+    TeamAgentBM25MemorySystem.method_id: TeamAgentBM25MemorySystem,
     MindMemosMemorySystem.method_id: MindMemosMemorySystem,
 }

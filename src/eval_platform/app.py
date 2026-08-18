@@ -162,9 +162,10 @@ with tab_run:
                 "Mem0 首次运行会用 deepseek-v4-flash 抽取 284 条消息的记忆；"
                 "后续 Top3/Top10 共用本地缓存。"
             )
-        elif method_id == "teamagent":
+        elif method_id in {"teamagent", "teamagent_bm25"}:
             st.caption(
-                "TeamAgent 会按每个提问时间生成 L2 群共享滚动摘要，并用 bge-m3 检索原始消息；"
+                "TeamAgent 会按每个提问时间生成 L2 群共享滚动摘要，并用 "
+                f"{'BM25' if method_id == 'teamagent_bm25' else 'bge-m3'} 检索原始消息；"
                 "Reader 同时读取 L2 与 TopK。首次运行会生成并缓存约 88 个时间 checkpoint。"
             )
         elif method_id == "mindmemos":

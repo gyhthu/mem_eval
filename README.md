@@ -84,7 +84,7 @@ MindMemOS 本身是独立服务，依赖 Qdrant、Neo4j、Kafka 和模型服务�
 ## 现场演示顺序（约 5 分钟）
 
 1. 打开“题库”：展示 172 题、题型筛选、标准答案和 Oracle 证据消息。
-2. 打开“Leaderboard”：切换 `Top K = 3` 和 `Top K = 10`，比较三种 Memory 方法。
+2. 打开“Leaderboard”：切换 `Top K = 3` 和 `Top K = 10`，比较不同 Memory 方法与检索配置。
 3. 打开“结果与 Badcase”：选择一条完整结果，展示总体指标、分类指标和具体 Badcase。
 4. 打开“启动评测”：取消勾选 Reader + Judge，现场跑一次 BM25（无需模型、几十秒内完成）。
 5. 若已接好内网模型，再勾选 Reader + Judge 做少量或完整端到端评测。

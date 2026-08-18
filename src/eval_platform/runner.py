@@ -84,7 +84,7 @@ def run_evaluation(
             env_file=env_file,
             progress=progress,
         )
-    if method_id == "teamagent":
+    if method_id in {"teamagent", "teamagent_bm25"}:
         from eval_platform.teamagent_eval import run_teamagent_retrieval
 
         return run_teamagent_retrieval(
@@ -92,6 +92,8 @@ def run_evaluation(
             top_k=top_k,
             run_name=run_name,
             limit=limit,
+            env_file=env_file,
+            retrieval_backend="bm25" if method_id == "teamagent_bm25" else "dense",
             progress=progress,
         )
     if method_id == "mindmemos":

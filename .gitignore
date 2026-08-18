@@ -41,6 +41,8 @@ results/eval_platform/runs/*
 !results/eval_platform/runs/20260816T063307008408Z_Mem0_Top3_DeepSeek_V4_Flash.json
 !results/eval_platform/runs/20260818T020434524781Z_MindMemOS_Top3_Full.json
 !results/eval_platform/runs/20260818T020610116396Z_MindMemOS_Top10_Full.json
+!results/eval_platform/runs/20260818T023258869953Z_TeamAgent_BM25_Top3_DeepSeek_V4_Flash.json
+!results/eval_platform/runs/20260818T023423781362Z_TeamAgent_BM25_Top10_DeepSeek_V4_Flash.json
 
 **/.DS_Store
 **/__pycache__/
