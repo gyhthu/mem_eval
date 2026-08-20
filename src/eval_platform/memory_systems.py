@@ -92,10 +92,17 @@ class MindMemosMemorySystem:
     version = "mindmemos_http_v3_checkpoint_temporal_scoped"
 
 
+class EverOSMemorySystem:
+    method_id = "everos"
+    display_name = "EverOS (Hybrid + BGE-M3)"
+    version = "everos_http_v3_event_checkpoint_bgem3"
+
+
 MEMORY_SYSTEMS = {
     BM25MemorySystem.method_id: BM25MemorySystem,
     Mem0MemorySystem.method_id: Mem0MemorySystem,
     TeamAgentMemorySystem.method_id: TeamAgentMemorySystem,
     TeamAgentBM25MemorySystem.method_id: TeamAgentBM25MemorySystem,
     MindMemosMemorySystem.method_id: MindMemosMemorySystem,
+    EverOSMemorySystem.method_id: EverOSMemorySystem,
 }

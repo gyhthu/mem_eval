@@ -1,0 +1,481 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0006_v003.json",
+  "episode_id": "ep_prototype_0006_v003",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 11,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“赔付指标调整与链路改造”讨论中，新指标集合是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": [
+          "时效≤48小时",
+          "赔付系数1.5倍",
+          "异常类型:延误/破损/丢失"
+        ],
+        "answer_type": "list",
+        "answer_display": [
+          "时效≤48小时",
+          "赔付系数1.5倍",
+          "异常类型:延误/破损/丢失"
+        ]
+      },
+      "oracle_paths": [
+        "ledger:facts.new_indicator_set"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 12:03，在“赔付指标调整与链路改造”讨论中，旧数据是否迁移？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": false,
+        "answer_type": "boolean",
+        "answer_display": false
+      },
+      "oracle_paths": [
+        "ledger:decisions.migrate_old_data"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T12:03:00+08:00"
+      },
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 12:03，在“回归测试与提交”讨论中，测试污染是否已修复？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:03:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "ledger:facts.test_pollution_fixed"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0008",
+        "m_0009",
+        "m_0010",
+        "m_0011"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T12:03:00+08:00"
+      },
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 12:03，在“回归测试与提交”讨论中，是否最终确认？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:03:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "通过",
+        "answer_type": "text",
+        "answer_display": "通过"
+      },
+      "oracle_paths": [
+        "ledger:facts.full_test_result"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T12:03:00+08:00"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“回归测试与提交”讨论中，2026-09-22 10:33的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:03:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已修复",
+        "answer_type": "text",
+        "answer_display": "已修复"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [
+        "ledger:facts.full_test_result"
+      ],
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0008",
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-22T10:33:00+08:00",
+        "before_event_id": "ev_04"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 09:03，在“赔付指标调整与链路改造”讨论中的“indicator_change_request”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T09:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待评估",
+        "answer_type": "text",
+        "answer_display": "待评估"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T09:03:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 09:32，在“赔付指标调整与链路改造”讨论中的“link_rework_analysis”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T09:32:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待改造",
+        "answer_type": "text",
+        "answer_display": "待改造"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0005",
+        "m_0006",
+        "m_0007"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T09:32:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 11:32，在“回归测试与提交”讨论中的“full_test_submit”阶段，测试结果是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T11:32:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "通过",
+        "answer_type": "text",
+        "answer_display": "通过"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.full_test_result"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T11:32:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 11:32，在“回归测试与提交”讨论中的“full_test_submit”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T11:32:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已提交",
+        "answer_type": "text",
+        "answer_display": "已提交"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T11:32:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 12:02，在“赔付指标调整与链路改造”讨论中的“migration_pending”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:02:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待决策",
+        "answer_type": "text",
+        "answer_display": "待决策"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T12:02:00+08:00"
+      },
+      "question_id": "q_0010"
+    },
+    {
+      "episode_id": "ep_prototype_0006_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-22 12:02，在“赔付指标调整与链路改造”讨论中的“migration_pending”阶段，最终决策是什么？",
+      "query_context": {
+        "query_user_id": "u_ops",
+        "query_user_name": null,
+        "query_user_role": "运营负责人",
+        "query_time": "2026-09-22T12:02:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "暂不迁移",
+        "answer_type": "text",
+        "answer_display": "暂不迁移"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.decision"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-22T12:02:00+08:00"
+      },
+      "question_id": "q_0011"
+    }
+  ]
+}

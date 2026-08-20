@@ -1,0 +1,38 @@
+{
+  "target_questions": 151,
+  "question_count": 172,
+  "episode_count": 18,
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "type_counts": {
+    "bot_writeback_pollution": 5,
+    "implicit_user_reference": 1,
+    "knowledge_absence": 22,
+    "multi_hop": 31,
+    "source_credibility": 14,
+    "state_update": 82,
+    "terminology_ambiguity": 1,
+    "time_commitment": 16
+  },
+  "source_question_files": [
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0001_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0002_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0002_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0002_v003.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0003_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0003_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0003_v003.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0004_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0004_v003.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0005_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0005_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0005_v003.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0006_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0006_v003.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0007_v001.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0007_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/prototype_0008_v002.json",
+    "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/questions/episode_from_prototype_0004.json"
+  ],
+  "failure_count": 0,
+  "failures": []
+}

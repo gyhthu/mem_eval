@@ -1,0 +1,614 @@
+{
+  "episode_id": "ep_prototype_0006_v001",
+  "prototype_trace": {
+    "prototype_id": "prototype_0006",
+    "source_task_ids": [
+      "task_0019"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 1；使用“物流异常处理与客户赔付”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "scenario": "物流异常处理与客户赔付",
+  "start_time": "2026-09-06T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "运营负责人",
+      "responsibility": "负责发布赔付指标并决定旧数据是否迁移",
+      "knowledge_boundary": "知道赔付业务规则、客户赔付口径和最终决策权；不知道数据表结构和测试实现细节"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "链路研发",
+      "responsibility": "负责改造订单提取与赔付计算链路并修复测试问题",
+      "knowledge_boundary": "知道订单提取与赔付计算链路代码、旧库键映射；不知道客户赔付具体工单和最终商业决策"
+    },
+    {
+      "id": "u_qa",
+      "kind": "human",
+      "role": "测试工程师",
+      "responsibility": "负责全量测试和打桩污染验证",
+      "knowledge_boundary": "知道测试环境、打桩方式和测试用例；不知道生产数据迁移范围"
+    },
+    {
+      "id": "u_cs",
+      "kind": "human",
+      "role": "客服主管",
+      "responsibility": "负责评估存量赔付工单影响并执行客户赔付沟通",
+      "knowledge_boundary": "知道客户赔付工单和存量数据影响；不知道技术改造细节"
+    },
+    {
+      "id": "bot_data",
+      "kind": "bot",
+      "role": "数据字典 Bot",
+      "responsibility": "负责按需返回指标字典与旧库键映射",
+      "knowledge_boundary": "允许访问指标字典、旧库键映射和订单提取任务元数据；不访问客户赔款金额和未公开决策"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "负责记录任务状态、决策和待办",
+      "knowledge_boundary": "允许访问项目任务状态、已确认决策和待办事项；不深入访问代码或数据字典"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_pipeline",
+      "title": "赔付指标升级与链路改造"
+    },
+    {
+      "thread_id": "t_migration",
+      "title": "旧数据迁移决策"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "metric_change",
+      "prompt_type": "new_topic",
+      "thread_id": "t_pipeline",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "u_dev",
+        "bot_project"
+      ],
+      "truth": {
+        "new_metrics": {
+          "damage_levels": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "compensation_amounts": {
+            "high": 500,
+            "medium": 200,
+            "low": 50
+          },
+          "delay_rule": "delay_hours * 20, max 300"
+        },
+        "affected_pipeline": "order_extract_and_compensation_evaluate",
+        "status": "已确认"
+      },
+      "communication_goal": "运营负责人发布新赔付指标，要求研发据此改造订单提取与赔付评估链路，并提示评估旧库兼容性。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "new_metric_set",
+          "value": {
+            "damage_levels": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "compensation_amounts": {
+              "high": 500,
+              "medium": 200,
+              "low": 50
+            },
+            "delay_rule": "delay_hours * 20, max 300"
+          }
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "metric_migration_impact",
+          "value": "待评估"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "pipeline_rework",
+      "prompt_type": "bot_response",
+      "thread_id": "t_pipeline",
+      "offset_minutes": 20,
+      "actors": [
+        "u_dev",
+        "bot_data"
+      ],
+      "truth": {
+        "trigger": "研发请求查询旧赔付档次编码与新指标键的映射",
+        "old_key_mapping": {
+          "old_scheme": [
+            "A",
+            "B",
+            "C"
+          ],
+          "new_scheme": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "compatible": false,
+          "reason": "旧库键缺少 high/low 枚举，且 key 命名规则不一致"
+        },
+        "migration_required": true,
+        "status": "链路改造中"
+      },
+      "communication_goal": "研发确认旧库键不兼容，需要决策是否迁移旧数据；数据字典Bot提供映射明细供评估。",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "old_key_incompatible",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "old_data_migration",
+          "value": "待决策"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "test_pollution_fix",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_pipeline",
+      "offset_minutes": 75,
+      "actors": [
+        "u_qa",
+        "u_dev"
+      ],
+      "truth": {
+        "reported_test_result": "通过",
+        "pollution_found": true,
+        "pollution_source": "共享测试环境中快递状态打桩数据污染赔付计算用例",
+        "fix_action": "隔离打桩数据并重跑全量用例",
+        "status": "修复中"
+      },
+      "communication_goal": "测试工程师纠正研发关于测试已通过的判断，说明打桩污染问题并确认修复方案。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "premature_test_pass",
+          "value": "rejected"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "pollution_fix_owner",
+          "value": "u_dev"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "test_status",
+          "value": "修复中"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "submission",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_pipeline",
+      "offset_minutes": 150,
+      "actors": [
+        "u_qa",
+        "u_dev",
+        "bot_project"
+      ],
+      "truth": {
+        "test_result": "全量通过",
+        "passed_count": 128,
+        "failed_count": 0,
+        "pollution_status": "已修复",
+        "code_submitted": true,
+        "submission_ref": "feat/compensation-metrics-v2",
+        "status": "已提交"
+      },
+      "communication_goal": "QA确认全量测试通过且污染已清除，研发提交代码，项目Bot更新任务状态。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "test_status",
+          "value": "通过"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "pollution_status",
+          "value": "已修复"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "code_submitted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "migration_pending",
+      "prompt_type": "new_topic",
+      "thread_id": "t_migration",
+      "offset_minutes": 240,
+      "actors": [
+        "u_owner",
+        "u_cs",
+        "bot_project"
+      ],
+      "truth": {
+        "pipeline_status": "已通过",
+        "final_confirmation": "已确认",
+        "migration_status": "待决策",
+        "decision_item": "是否将存量赔付工单的旧档次数据迁移到新指标体系",
+        "review_deadline": "2026-09-10"
+      },
+      "communication_goal": "运营负责人确认新指标链路可上线，旧数据迁移留待后续决策；客服主管确认存量工单不受影响，项目Bot记录待办。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "pipeline_go_live",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "old_data_migration",
+          "value": "待决策"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "migration_review_deadline",
+          "value": "2026-09-10"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "oracle_hook": "新指标集合是什么",
+      "answer_path": "event:ev_01.truth.new_metrics",
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "hook": "新指标集合是什么"
+    },
+    {
+      "oracle_hook": "旧数据是否迁移",
+      "answer_path": "ledger:open_questions.old_data_migration",
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_05"
+      ],
+      "hook": "旧数据是否迁移"
+    },
+    {
+      "oracle_hook": "测试污染是否已修复",
+      "answer_path": "event:ev_04.truth.pollution_status",
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ],
+      "hook": "测试污染是否已修复"
+    },
+    {
+      "oracle_hook": "是否最终确认",
+      "answer_path": "event:ev_05.truth.final_confirmation",
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "hook": "是否最终确认"
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_pipeline",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-06T09:00:00+08:00",
+      "content": "新赔付指标定了：破损高/中/低对应赔500/200/50，延迟按小时×20，封顶300。麻烦@u_dev 同步改订单提取和赔付计算链路，先评估下旧库兼容性。",
+      "reply_to": null,
+      "mentions": [
+        "u_dev"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T09:01:00+08:00",
+      "content": "收到。旧库的键映射和新的等级字段对不上，想问下历史数据怎么处理？是按新规则重算还是保留原值？",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_pipeline",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-06T09:02:00+08:00",
+      "content": "先别动旧数据，你评估下影响范围，出个兼容方案再说。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T09:20:00+08:00",
+      "content": "@bot_data 帮忙拉下旧赔付档次编码和新指标键的映射，评估兼容性用。",
+      "reply_to": "m_0003",
+      "mentions": [
+        "bot_data"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_pipeline",
+      "author_id": "bot_data",
+      "timestamp": "2026-09-06T09:21:00+08:00",
+      "content": "旧库键：A/B/C；新指标键：high/medium/low。键命名规则不一致，旧库缺 high/low 枚举，不能直接兼容，需要迁移旧数据。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T09:22:00+08:00",
+      "content": "行，那迁移成本我这边先估一下。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T10:15:00+08:00",
+      "content": "赔付计算那条链路全量用例我看报告是过的，可以准备上线了吧？",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_pipeline",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-06T10:16:00+08:00",
+      "content": "先别上。那个“通过”是共享测试环境里快递状态打桩数据污染了赔付计算用例之后的结果，实际链路没真正验到。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T10:17:00+08:00",
+      "content": "明白了，那我把打桩数据隔离出来，然后重跑全量用例。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_pipeline",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-06T10:18:00+08:00",
+      "content": "对，隔离后重跑全量用例，跑完我再同步结论，先别上线。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_pipeline",
+      "author_id": "u_qa",
+      "timestamp": "2026-09-06T11:30:00+08:00",
+      "content": "结果同步：重跑后全量128/0通过，打桩污染已清除。@u_dev 可以提交代码了，@bot_project 帮忙更新状态。",
+      "reply_to": "m_0010",
+      "mentions": [
+        "u_dev",
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_pipeline",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-06T11:31:00+08:00",
+      "content": "提交完成，分支 feat/compensation-metrics-v2。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_pipeline",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-06T11:32:00+08:00",
+      "content": "已更新任务状态为已提交，测试结果全量通过（128/0），污染已修复。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_migration",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-06T13:00:00+08:00",
+      "content": "新指标链路我这边确认可以上。@u_cs 存量工单用旧口径没问题吧？旧数据迁移先不决定，等评估。",
+      "reply_to": null,
+      "mentions": [
+        "u_cs"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_migration",
+      "author_id": "u_cs",
+      "timestamp": "2026-09-06T13:01:00+08:00",
+      "content": "存量工单不受影响，客户那边话术照旧。@bot_project 麻烦记录：新指标已确认上线，旧数据迁移待决策。",
+      "reply_to": "m_0014",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_migration",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-06T13:02:00+08:00",
+      "content": "收到，已记录。待决策项截止 9/10。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "old_key_incompatible": true,
+      "test_status": "通过",
+      "pollution_status": "已修复"
+    },
+    "decisions": {
+      "new_metric_set": {
+        "damage_levels": [
+          "high",
+          "medium",
+          "low"
+        ],
+        "compensation_amounts": {
+          "high": 500,
+          "medium": 200,
+          "low": 50
+        },
+        "delay_rule": "delay_hours * 20, max 300"
+      },
+      "pipeline_go_live": true
+    },
+    "open_questions": {
+      "metric_migration_impact": "待评估",
+      "old_data_migration": "待决策",
+      "test_status": "修复中"
+    },
+    "commitments": {
+      "pollution_fix_owner": "u_dev",
+      "code_submitted": true,
+      "migration_review_deadline": "2026-09-10"
+    },
+    "bot_outputs": {},
+    "corrections": {
+      "premature_test_pass": "rejected"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

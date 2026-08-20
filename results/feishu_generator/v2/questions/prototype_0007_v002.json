@@ -1,0 +1,465 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0007_v002.json",
+  "episode_id": "ep_prototype_0007_v002",
+  "declared_memory_question_types": [
+    "state_update",
+    "terminology_ambiguity",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 11,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“权益命名歧义梳理”讨论中，哪些命名被修改？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T12:04:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "积分有效截止日",
+        "answer_type": "text",
+        "answer_display": "积分有效截止日"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.updated_term"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 12:04，在“客服通知全量测试”讨论中，测试是否通过？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T12:04:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "通过",
+        "answer_type": "text",
+        "answer_display": "通过"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T12:04:00+08:00"
+      },
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“权益命名歧义梳理”讨论中，规则分类机制如何运作？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T12:04:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "权益按用户等级和权益类型分为三档：基础权益、成长权益、高价值权益",
+        "answer_type": "text",
+        "answer_display": "权益按用户等级和权益类型分为三档：基础权益、成长权益、高价值权益"
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.classification_rule"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0018",
+        "m_0019",
+        "m_0020",
+        "m_0021"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“权益命名歧义梳理”讨论中，评分指标有哪些？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T12:04:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": [
+          "客服响应时效",
+          "权益解释准确率",
+          "客户满意度"
+        ],
+        "answer_type": "list",
+        "answer_display": [
+          "客服响应时效",
+          "权益解释准确率",
+          "客户满意度"
+        ]
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.scoring_metrics"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0018",
+        "m_0019",
+        "m_0020",
+        "m_0021"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 09:02，在“权益命名歧义梳理”讨论中的“ambiguity_report”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T09:02:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待确认",
+        "answer_type": "text",
+        "answer_display": "待确认"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T09:02:00+08:00"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 09:33，在“权益命名歧义梳理”讨论中的“rename_decision”阶段，最终决策是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T09:33:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "采用标准名称",
+        "answer_type": "text",
+        "answer_display": "采用标准名称"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.decision"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006",
+        "m_0007"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T09:33:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 09:33，在“权益命名歧义梳理”讨论中的“rename_decision”阶段，命名决策进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T09:33:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已确认",
+        "answer_type": "text",
+        "answer_display": "已确认"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006",
+        "m_0007"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T09:33:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 09:47，在“权益命名歧义梳理”讨论中的“term_update”阶段，术语更新进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T09:47:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已更新",
+        "answer_type": "text",
+        "answer_display": "已更新"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T09:47:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 10:02，在“客服通知全量测试”讨论中的“test_start”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T10:02:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "进行中",
+        "answer_type": "text",
+        "answer_display": "进行中"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0011",
+        "m_0012",
+        "m_0013"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T10:02:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 11:03，在“客服通知全量测试”讨论中的“test_pass”阶段，测试结果是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T11:03:00+08:00",
+        "thread_ids": [
+          "t_test"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "全部通过",
+        "answer_type": "text",
+        "answer_display": "全部通过"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.test_result"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T11:03:00+08:00"
+      },
+      "question_id": "q_0010"
+    },
+    {
+      "episode_id": "ep_prototype_0007_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-15 12:03，在“权益命名歧义梳理”讨论中的“mechanism_explanation”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客服主管",
+        "query_time": "2026-09-15T12:03:00+08:00",
+        "thread_ids": [
+          "t_rename"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已完成",
+        "answer_type": "text",
+        "answer_display": "已完成"
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0018",
+        "m_0019",
+        "m_0020",
+        "m_0021"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-15T12:03:00+08:00"
+      },
+      "question_id": "q_0011"
+    }
+  ]
+}

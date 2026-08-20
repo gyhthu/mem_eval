@@ -1,0 +1,386 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0002_v001.json",
+  "episode_id": "ep_prototype_0002_v001",
+  "declared_memory_question_types": [
+    "state_update",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 9,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:33，在“客户续约折扣审批”讨论中，批次是否直接收口？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:33:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "approved",
+        "answer_type": "text",
+        "answer_display": "approved"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.final_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:33:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“客户续约折扣审批”讨论中，是否存在待处置项？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:33:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "PASS",
+        "answer_type": "text",
+        "answer_display": "PASS"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.validation_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010",
+        "m_0011"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "在“客户续约折扣审批”讨论中，谁完成最终核验？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:33:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_sales",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_sales",
+          "name": null,
+          "role": "销售负责人"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.approval_owner"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“客户续约折扣审批”讨论中，2026-09-02 09:27的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:33:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "确认无待处置项",
+        "answer_type": "text",
+        "answer_display": "确认无待处置项"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_05.truth.approval_owner"
+      ],
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-02T09:27:00+08:00",
+        "before_event_id": "ev_05"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:03，在“客户续约折扣审批”讨论中的“submit_review”阶段，关于提交复核进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:03:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待复核",
+        "answer_type": "text",
+        "answer_display": "待复核"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:03:00+08:00"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "bot_writeback_pollution",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:06，在“客户续约折扣审批”讨论中的“risk_query_result”阶段，Bot 输出正确性是否成立？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:06:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.bot_correctness"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "source_credibility"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:06:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "bot_writeback_pollution",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:09，在“客户续约折扣审批”讨论中的“rule_validation”阶段，Bot 输出正确性是否成立？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:09:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.bot_correctness"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008"
+      ],
+      "required_distinctions": [
+        "source_credibility"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:09:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:09，在“客户续约折扣审批”讨论中的“rule_validation”阶段，缺失材料有哪些？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:09:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": [],
+        "answer_type": "list",
+        "answer_display": []
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.missing_documents"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:09:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v001",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [],
+      "question": "截至2026-09-02 09:32，在“客户续约折扣审批”讨论中的“direct_closure”阶段，生效时间是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "销售负责人",
+        "query_time": "2026-09-02T09:32:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "2024-06-01",
+        "answer_type": "text",
+        "answer_display": "2024-06-01"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.effective_at"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0012",
+        "m_0013",
+        "m_0014"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-02T09:32:00+08:00"
+      },
+      "question_id": "q_0009"
+    }
+  ]
+}

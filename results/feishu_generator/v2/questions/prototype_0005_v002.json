@@ -1,0 +1,344 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0005_v002.json",
+  "episode_id": "ep_prototype_0005_v002",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "knowledge_absence"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 8,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 12:03，在“设备维护规则沙箱回归与模型收口”讨论中，端到端验证是否通过？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "passed",
+        "answer_type": "text",
+        "answer_display": "passed"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.e2e_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0011",
+        "m_0012",
+        "m_0013"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T12:03:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“设备维护规则沙箱回归与模型收口”讨论中，根因是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "缺少轴承温度判据",
+        "answer_type": "text",
+        "answer_display": "缺少轴承温度判据"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.root_cause"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 12:03，在“设备维护规则沙箱回归与模型收口”讨论中，真模型重炼是否完成？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "in_progress",
+        "answer_type": "text",
+        "answer_display": "in_progress"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.model_refine_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T12:03:00+08:00"
+      },
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“设备维护规则沙箱回归与模型收口”讨论中，哪些判定族被补齐？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T12:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": [
+          "轴承温度判据",
+          "振动加速度判据",
+          "润滑油压判据",
+          "单次运行时长判据"
+        ],
+        "answer_type": "list",
+        "answer_display": [
+          "轴承温度判据",
+          "振动加速度判据",
+          "润滑油压判据",
+          "单次运行时长判据"
+        ]
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.completed_rule_family"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 09:02，在“设备维护规则沙箱回归与模型收口”讨论中的“sample_submission”阶段，关于样本提交进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T09:02:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "pending",
+        "answer_type": "text",
+        "answer_display": "待处理"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T09:02:00+08:00"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 09:32，在“设备维护规则沙箱回归与模型收口”讨论中的“baseline_failure”阶段，基线状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T09:32:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "failed",
+        "answer_type": "text",
+        "answer_display": "failed"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.baseline_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T09:32:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 10:03，在“设备维护规则沙箱回归与模型收口”讨论中的“rule_family_completion”阶段，规则补齐进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T10:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "rules_updated",
+        "answer_type": "text",
+        "answer_display": "规则已更新"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T10:03:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0005_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-13 12:02，在“设备维护规则沙箱回归与模型收口”讨论中的“model_refine_pending”阶段，提交状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "设备维护负责人",
+        "query_time": "2026-09-13T12:02:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "submitted",
+        "answer_type": "text",
+        "answer_display": "submitted"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.submission_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-13T12:02:00+08:00"
+      },
+      "question_id": "q_0008"
+    }
+  ]
+}

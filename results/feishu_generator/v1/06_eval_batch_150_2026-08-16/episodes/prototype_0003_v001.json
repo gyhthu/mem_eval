@@ -1,0 +1,609 @@
+{
+  "episode_id": "ep_prototype_0003_v001",
+  "scenario": "内容发布排期与合规复核中的补测确认与外部中断收口",
+  "start_time": "2026-09-03T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_ops",
+      "kind": "human",
+      "role": "内容运营负责人",
+      "responsibility": "负责活动页发布排期、协调复核与补测进度、最终确认收口状态",
+      "knowledge_boundary": "知道发布计划和内容版本；不了解设计规范细节、合规规则细节和外部服务技术状态"
+    },
+    {
+      "id": "u_designer",
+      "kind": "human",
+      "role": "设计师",
+      "responsibility": "负责活动页视觉与文案设计复核，发现并说明设计合规问题，配合修改设计",
+      "knowledge_boundary": "知道设计规范和素材来源；不了解后端实现、测试流程和发布回写机制"
+    },
+    {
+      "id": "u_compliance",
+      "kind": "human",
+      "role": "合规专员",
+      "responsibility": "负责内容合规复核、判定违规问题、确认补测结果是否通过",
+      "knowledge_boundary": "熟悉广告法与平台合规规则；不清楚技术实现细节和外部 API 状态"
+    },
+    {
+      "id": "u_dev",
+      "kind": "human",
+      "role": "技术负责人",
+      "responsibility": "负责活动页实现复核、安排补测、排查外部服务异常并重试回写",
+      "knowledge_boundary": "掌握技术实现、测试流程、外部接口；不熟悉文案合规口径和设计细节"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目 Bot",
+      "responsibility": "记录复核进度、决策、行动项与任务状态，提醒各方跟进",
+      "knowledge_boundary": "只能访问项目任务表和排期表；不访问外部服务状态、设计稿或合规原文"
+    },
+    {
+      "id": "bot_release",
+      "kind": "bot",
+      "role": "发布流水线 Bot",
+      "responsibility": "执行发布状态回写，检测外部回写结果，报告失败原因",
+      "knowledge_boundary": "只掌握回写接口状态与错误码；不知道业务决策、合规细节和补测安排"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_review",
+      "title": "活动页设计复核与补测"
+    },
+    {
+      "thread_id": "t_release",
+      "title": "发布状态收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "design_review_issue",
+      "prompt_type": "new_topic",
+      "thread_id": "t_review",
+      "offset_minutes": 0,
+      "actors": [
+        "u_designer",
+        "u_compliance",
+        "u_ops",
+        "bot_project"
+      ],
+      "truth": {
+        "review_item": "活动落地页首屏文案",
+        "issue": "使用绝对化用语‘最划算’",
+        "issue_source": "设计复核",
+        "severity": "blocker",
+        "status": "需修改"
+      },
+      "communication_goal": "设计师报告设计复核发现合规问题，合规专员确认需要修改，运营了解对排期的影响。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "design_issue",
+          "value": "绝对化用语"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "需修改"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "supplement_test_correction",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_review",
+      "offset_minutes": 120,
+      "actors": [
+        "u_dev",
+        "u_compliance",
+        "u_ops",
+        "bot_project"
+      ],
+      "truth": {
+        "original_test_scope": "仅合规扫描",
+        "gap": "缺少A/B验证覆盖修改后文案",
+        "supplement_test": "合规扫描 + A/B验证",
+        "owner": "u_dev",
+        "due_time": "2026-09-01T18:00:00+08:00",
+        "status": "安排中"
+      },
+      "communication_goal": "技术负责人纠正补测范围不足，提出补充 A/B 验证，合规与运营同意，项目 Bot 记录待办。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "recheck_scope",
+          "value": "合规扫描 + A/B验证"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "recheck_owner",
+          "value": "u_dev"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "recheck_status",
+          "value": "安排中"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "recheck_approval",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_review",
+      "offset_minutes": 545,
+      "actors": [
+        "u_compliance",
+        "u_dev",
+        "u_ops",
+        "bot_project"
+      ],
+      "truth": {
+        "recheck_result": "pass",
+        "approved_by": "u_compliance",
+        "approval_note": "修改后文案不再违规",
+        "status": "已确认"
+      },
+      "communication_goal": "合规专员确认补测通过，运营确认可进入发布环节。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "recheck_result",
+          "value": "pass"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "recheck_status",
+          "value": "已确认通过"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "external_interruption",
+      "prompt_type": "bot_response",
+      "thread_id": "t_release",
+      "offset_minutes": 660,
+      "actors": [
+        "bot_release",
+        "u_ops",
+        "u_dev"
+      ],
+      "truth": {
+        "final_status": "回写失败",
+        "external_issue": "内容分发API超时",
+        "error_code": "TIMEOUT_504",
+        "impact": "状态未更新到内容分发系统",
+        "status": "待重试"
+      },
+      "communication_goal": "发布流水线 Bot 报告最终状态回写失败，技术负责人确认外部服务中断，运营决定等待重试。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "external_issue",
+          "value": "内容分发API超时"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "write_result",
+          "value": "timeout_504"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "待重试"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "retry_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_release",
+      "offset_minutes": 690,
+      "actors": [
+        "u_ops",
+        "u_dev",
+        "bot_release",
+        "bot_project"
+      ],
+      "truth": {
+        "retry_needed": true,
+        "retry_condition": "外部服务恢复后",
+        "final_status": "未收口",
+        "closure": "pending"
+      },
+      "communication_goal": "运营和技术负责人确认等待外部服务恢复后重试回写，任务暂不关闭。",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "final_status",
+          "value": "未收口"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "retry_needed",
+          "value": true
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retry_action",
+          "value": "外部服务恢复后由u_dev重试回写"
+        }
+      ]
+    }
+  ],
+  "prototype_trace": {
+    "prototype_id": "prototype_0003",
+    "source_task_ids": [
+      "task_0015"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 1；使用“内容发布排期与合规复核”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "oracle_bindings": [
+    {
+      "hook": "任务是否已收口",
+      "answer_path": "event:ev_05.truth.final_status",
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "中断原因是什么",
+      "answer_path": "event:ev_04.truth.external_issue",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "补测是否已确认",
+      "answer_path": "event:ev_03.truth.recheck_result",
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "是否需要重试收口",
+      "answer_path": "event:ev_05.truth.retry_needed",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_designer",
+      "timestamp": "2026-09-03T09:00:00+08:00",
+      "content": "首屏文案复核发现一个合规问题：‘最划算’这个表述属于绝对化用语，需要改吧？@u_compliance 帮看下？",
+      "reply_to": null,
+      "mentions": [
+        "u_compliance"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-03T09:01:00+08:00",
+      "content": "是的，‘最’类绝对化用语不能出现在对外文案里，这个必须改。属于blocker，改完需要走补测。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-03T09:02:00+08:00",
+      "content": "@u_designer 这个修改影响上线排期吗？现在改的话什么时候能给到补充测？",
+      "reply_to": "m_0002",
+      "mentions": [
+        "u_designer"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_designer",
+      "timestamp": "2026-09-03T09:03:00+08:00",
+      "content": "我尽快改，改完同步你。补测确认后就能定发布时间。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-03T11:00:00+08:00",
+      "content": "补测范围说清楚：只做合规扫描不够，修改后的文案必须加A/B验证一起跑。不然合规过了，转化掉了，上线就成了问题。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-03T11:01:00+08:00",
+      "content": "同意。合规扫描只解决文案有没有违规词，不验证文案实际效果。你们把补测范围改成“合规扫描 + A/B验证”就行。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-03T11:02:00+08:00",
+      "content": "同意，补测就按这个来。@u_dev 补测你负责，@bot_project 记一下待办。",
+      "reply_to": "m_0006",
+      "mentions": [
+        "u_dev",
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-03T11:03:00+08:00",
+      "content": "已记录：补测范围=合规扫描+A/B验证；负责人=u_dev；截止=2026-09-01 18:00；状态=安排中。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-03T11:04:00+08:00",
+      "content": "收到，我来安排，完成后同步大家。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-03T18:05:00+08:00",
+      "content": "补测跑完了，合规扫描和 A/B 验证都正常。@u_compliance 你帮忙确认下最终结论？",
+      "reply_to": "m_0006",
+      "mentions": [
+        "u_compliance"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-03T18:06:00+08:00",
+      "content": "我复核过了，修改后文案不再违规，确认通过。可以进发布环节。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-03T18:07:00+08:00",
+      "content": "好，排期就按这个版本走。@bot_project 把复核状态更新一下，准备发布。",
+      "reply_to": "m_0011",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-03T18:08:00+08:00",
+      "content": "已更新：复核=通过，补测=完成，下一步=发布排期。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_04",
+      "thread_id": "t_release",
+      "author_id": "bot_release",
+      "timestamp": "2026-09-03T20:00:00+08:00",
+      "content": "内容分发 API 返回 TIMEOUT_504，发布状态回写失败。状态未更新到内容分发系统，当前待重试。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_04",
+      "thread_id": "t_release",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-03T20:01:00+08:00",
+      "content": "确认是内容分发侧超时，外部服务中断。先别重试，我监控恢复后手动触发。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_04",
+      "thread_id": "t_release",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-03T20:02:00+08:00",
+      "content": "好，那发布先等重试，排期我这边不动，有结果同步我。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_05",
+      "thread_id": "t_release",
+      "author_id": "u_dev",
+      "timestamp": "2026-09-03T20:30:00+08:00",
+      "content": "我继续盯外部服务状态，恢复后手动重试回写。重试前任务保持待重试，不关闭。@u_ops 成功后再同步你。",
+      "reply_to": "m_0016",
+      "mentions": [
+        "u_ops"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0018",
+      "event_id": "ev_05",
+      "thread_id": "t_release",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-03T20:31:00+08:00",
+      "content": "确认：等外部服务恢复后重试，任务先不收口。@bot_project 更新任务状态为待重试。",
+      "reply_to": "m_0017",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0019",
+      "event_id": "ev_05",
+      "thread_id": "t_release",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-03T20:32:00+08:00",
+      "content": "已更新：发布任务=待重试（外部服务恢复后），未收口。重试完成后请通知我确认关闭。",
+      "reply_to": "m_0018",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "design_issue": "绝对化用语",
+      "recheck_result": "pass",
+      "external_issue": "内容分发API超时"
+    },
+    "decisions": {
+      "recheck_scope": "合规扫描 + A/B验证",
+      "retry_needed": true
+    },
+    "open_questions": {
+      "review_status": "需修改",
+      "recheck_status": "已确认通过",
+      "final_status": "未收口"
+    },
+    "commitments": {
+      "recheck_owner": "u_dev",
+      "retry_action": "外部服务恢复后由u_dev重试回写"
+    },
+    "bot_outputs": {
+      "write_result": "timeout_504"
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

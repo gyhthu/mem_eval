@@ -33,6 +33,10 @@ def inject_styles() -> None:
       background: color-mix(in srgb, #4f7cff 10%, transparent); border-radius: 6px;}
     .message {padding: .7rem .9rem; border: 1px solid rgba(128,128,128,.25);
       border-radius: 8px; margin-bottom: .5rem;}
+    .eval-box {padding: .8rem 1rem; border: 1px solid rgba(128,128,128,.25);
+      border-radius: 8px; height: 100%;}
+    .eval-box h4 {margin: 0 0 .5rem 0; font-size: 0.95rem;}
+    .eval-box p {margin: .25rem 0;}
     """
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
@@ -76,11 +80,228 @@ def llm_model_label(run: dict[str, Any]) -> str:
     return "—"
 
 
+def questions_board(run: dict[str, Any]) -> str:
+    path = str((run.get("dataset") or {}).get("questions_path") or "").replace("\\", "/")
+    return "v2" if "/v2/" in path else "v1"
+
+
+def leaderboard_configuration(run: dict[str, Any]) -> tuple[Any, ...]:
+    method = run.get("method") or {}
+    return (
+        method.get("method_id"),
+        method.get("version"),
+        method.get("top_k"),
+        method.get("memory_llm_model"),
+        method.get("reader_model"),
+        method.get("judge_model"),
+        method.get("memory_algorithm"),
+        method.get("search_strategy"),
+        method.get("rerank"),
+    )
+
+
+def eligible_leaderboard_runs(
+    runs: list[dict[str, Any]], *, board: str, question_count: int
+) -> list[dict[str, Any]]:
+    full_runs = [
+        run
+        for run in runs
+        if questions_board(run) == board
+        and int((run.get("summary") or {}).get("questions") or 0) == question_count
+        and int((run.get("summary") or {}).get("llm_errors") or 0) == 0
+        and (run.get("summary") or {}).get("answer_accuracy") is not None
+        and (
+            (run.get("summary") or {}).get("llm_completed") is None
+            or int((run.get("summary") or {}).get("llm_completed") or 0) == question_count
+        )
+        and (run.get("method") or {}).get("method_id") in MEMORY_SYSTEMS
+        and (run.get("method") or {}).get("version")
+        == MEMORY_SYSTEMS[(run.get("method") or {}).get("method_id")].version
+    ]
+    deduplicated: list[dict[str, Any]] = []
+    seen: set[tuple[Any, ...]] = set()
+    for run in full_runs:
+        key = leaderboard_configuration(run)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduplicated.append(run)
+    return deduplicated
+
+
+def render_leaderboard_table(
+    runs: list[dict[str, Any]], *, board_label: str, question_count: int, widget_key: str
+) -> None:
+    if not runs:
+        st.info(f"{board_label}还没有完整 {question_count} 题且无运行错误的评测记录。")
+        return
+    available_top_k = sorted(
+        {
+            int((run.get("method") or {}).get("top_k"))
+            for run in runs
+            if (run.get("method") or {}).get("top_k") is not None
+        }
+    )
+    selected_top_k = st.radio(
+        "评测配置",
+        options=available_top_k,
+        format_func=lambda value: f"Top K = {value}",
+        horizontal=True,
+        key=widget_key,
+    )
+    configured_runs = [
+        run
+        for run in runs
+        if int((run.get("method") or {}).get("top_k") or 0) == selected_top_k
+    ]
+    rank_by_answer = any(
+        (run.get("summary") or {}).get("answer_accuracy") is not None
+        for run in configured_runs
+    )
+    leaderboard = sorted(
+        [
+            {
+                "方法": (run.get("method") or {}).get("display_name"),
+                "LLM 模型": llm_model_label(run),
+                "版本": (run.get("method") or {}).get("version"),
+                "Top K": (run.get("method") or {}).get("top_k"),
+                "题数": (run.get("summary") or {}).get("questions"),
+                "Hit@K": (run.get("summary") or {}).get("hit_rate"),
+                "Recall@K": (run.get("summary") or {}).get("mean_evidence_recall"),
+                "MRR": (run.get("summary") or {}).get("mrr"),
+                "Answer Accuracy": (run.get("summary") or {}).get("answer_accuracy"),
+                "时间": run.get("created_at"),
+            }
+            for run in configured_runs
+        ],
+        key=lambda row: (
+            float(row["Answer Accuracy"] if row["Answer Accuracy"] is not None else -1)
+            if rank_by_answer
+            else float(row["Hit@K"] or 0),
+            float(row["Recall@K"] or 0),
+            float(row["MRR"] or 0),
+        ),
+        reverse=True,
+    )
+    ranking_metric = "Answer Accuracy" if rank_by_answer else "Hit@K"
+    st.caption(
+        f"{board_label}仅比较 Top K = {selected_top_k}、完整 {question_count} 题且无运行错误的结果；"
+        f"按 {ranking_metric} 排名。v1 / v2 题集分榜，互不覆盖。"
+    )
+    for rank, row in enumerate(leaderboard, start=1):
+        row["排名"] = rank
+    st.dataframe(
+        leaderboard,
+        column_order=[
+            "排名",
+            "方法",
+            "LLM 模型",
+            "版本",
+            "Top K",
+            "题数",
+            "Hit@K",
+            "Recall@K",
+            "MRR",
+            "Answer Accuracy",
+            "时间",
+        ],
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Hit@K": st.column_config.NumberColumn("Hit@K", format="percent"),
+            "Recall@K": st.column_config.NumberColumn("Recall@K", format="percent"),
+            "MRR": st.column_config.NumberColumn("MRR", format="%.3f"),
+            "Answer Accuracy": st.column_config.NumberColumn(
+                "Answer Accuracy", format="percent"
+            ),
+        },
+    )
+
+
 def render_message(message: dict[str, Any], *, evidence: bool = False) -> None:
     badge = " · ORACLE EVIDENCE" if evidence else ""
     st.markdown(
         f"**{message.get('message_id')} · {message.get('author_id')} · "
         f"{message.get('timestamp')}**{badge}\n\n{message.get('content')}",
+    )
+
+
+def render_version_pair(v1_html: str, v2_html: str) -> None:
+    left, right = st.columns(2)
+    with left:
+        st.markdown(f'<div class="eval-box"><h4>v1</h4>{v1_html}</div>', unsafe_allow_html=True)
+    with right:
+        st.markdown(f'<div class="eval-box"><h4>v2</h4>{v2_html}</div>', unsafe_allow_html=True)
+
+
+def render_dataset_changelog() -> None:
+    st.subheader("v2 题集相对 v1 改了什么")
+    st.markdown(
+        "对话轨迹不变：仍是 18 个 episode、284 条消息、172 道题。"
+        "v2 只重写出题口径和 Judge，用来去掉「问的是 schema 槽、群聊里却是另一件事」这类伪失败。"
+        "Leaderboard 因此分成 **v1 原榜** 和 **v2 题集**，互不覆盖。"
+    )
+    st.markdown(
+        """
+        | 改什么 | v1 的问题 | v2 怎么改 |
+        |---|---|---|
+        | 题面 | 37 题问含糊的「当前状态」，同一事件里结果/根因/进展共用一个槽 | 问具体字段，例如「根因排查进展到哪一步」 |
+        | 时间 | 91 题的提问时间是 episode 结束，检索截止却是事件结束 | 题面写 `截至 {as_of}`，`query_time` 与 `as_of` 对齐 |
+        | 标准答案 | Judge 看到的是 schema token，如 `identified` | 增加自然语言展示，如「根因已定位」 |
+        | Judge | 容易把同一事件里另一个字段判成正确 | 同字段近义可判对；`failed` 不能顶替「根因已定位」 |
+        """
+    )
+
+    st.markdown("#### 例子 1：同一事件里两个字段，不能互相顶替")
+    st.caption(
+        "预算规则基线回归 / `root_cause_reproduced`。"
+        "群聊里基线判定是 failed，根因进展是 identified。"
+        "v1 把后者问成「当前状态」，Reader 常拿 failed 去填。"
+    )
+    render_version_pair(
+        "<p><b>q_000122</b> 基线结果是什么？→ <code>failed</code></p>"
+        "<p><b>q_000123</b> 当前状态是什么？→ <code>identified</code></p>"
+        "<p>提问时间 11:03，检索截止 09:28。</p>",
+        "<p><b>q_000113</b> 基线结果是什么？→ <code>failed</code></p>"
+        "<p><b>q_000114</b> 根因排查进展到哪一步？→ <code>identified</code> / 根因已定位</p>"
+        "<p>两题都写「截至 09:28」，提问时间也是 09:28。</p>",
+    )
+    st.markdown(
+        "Judge 现在接受「identified ≡ 根因已定位」，"
+        "但把基线判定 failed 当成根因排查进展仍判错。"
+    )
+
+    st.markdown("#### 例子 2：中间态题要对齐时间切片")
+    st.caption(
+        "同一讨论的 `sample_provided` 阶段。v1 在 episode 结束时刻提问，"
+        "却按 09:03 做检索，题面又没写截止时间。"
+    )
+    render_version_pair(
+        "<p><b>q_000121</b> 在“预算规则基线回归”讨论中的“sample_provided”阶段，"
+        "当前状态是什么？</p>"
+        "<p>gold：<code>submitted</code></p>"
+        "<p>提问时间 11:03，as_of 09:03。</p>",
+        "<p><b>q_000112</b> 截至2026-09-21 09:03，在“预算规则基线回归”讨论中的"
+        "“sample_provided”阶段，样本提交进展到哪一步？</p>"
+        "<p>gold：<code>submitted</code> / 已提交</p>"
+        "<p>提问时间与 as_of 都是 09:03。</p>",
+    )
+
+    st.markdown("#### 例子 3：缺信息题也改问具体进展，不再说「当前状态」")
+    render_version_pair(
+        "<p><b>q_000025</b> 截至2026-09-02 09:03，在“客户续约折扣审批”讨论中的"
+        "“submit_review”阶段，关于<strong>当前状态</strong>是否已有确定信息？"
+        "当前记录是什么？</p>"
+        "<p>gold：待复核</p>",
+        "<p><b>q_000016</b> 截至2026-09-02 09:03，在“客户续约折扣审批”讨论中的"
+        "“submit_review”阶段，关于<strong>提交复核进展</strong>是否已有确定信息？"
+        "当时的记录是什么？</p>"
+        "<p>gold：待复核</p>",
+    )
+
+    st.caption(
+        "当前题库页和默认评测入口读的是 v2。"
+        "v1 仍可在 Leaderboard「v1 题集（原榜）」查看历史分数。"
     )
 
 
@@ -95,23 +316,27 @@ with st.sidebar:
     col_a.metric("Episodes", len(data.episodes))
     col_b.metric("Messages", data.message_count)
     st.divider()
+    st.caption("当前题集")
+    st.markdown("**v2**（对话同 v1，重写出题与 Judge）")
     st.caption("评分口径")
     st.markdown("检索指标 + Reader 答案 + LLM Judge 正确率。")
 
 st.title("飞书群聊 Memory 评测平台")
 st.markdown(
     '<div class="eval-note"><strong>完整评测链路</strong>　Memory 检索 → Reader 生成答案 → '
-    "Judge 对照标准答案。当前支持 BM25、Mem0、TeamAgent Memory 和 MindMemOS；"
-    "Reader / Judge 均可配置为 DeepSeek V4 Flash。</div>",
+    "Judge 对照标准答案。当前默认评测 v2 题集；v1 原榜单独保留。"
+    "支持 BM25、Mem0、TeamAgent、MindMemOS、EverOS；"
+    "Reader / Judge 可配置为 DeepSeek V4 Flash。</div>",
     unsafe_allow_html=True,
 )
 
-tab_questions, tab_run, tab_results, tab_leaderboard = st.tabs(
-    ["题库", "启动评测", "结果与 Badcase", "Leaderboard"]
+tab_questions, tab_dataset, tab_run, tab_results, tab_leaderboard = st.tabs(
+    ["题库", "v2 题集说明", "启动评测", "结果与 Badcase", "Leaderboard"]
 )
 
 with tab_questions:
-    st.subheader("172 道评测题")
+    st.subheader("v2 题库 · 172 道评测题")
+    st.caption("对话复用 v1；题面、标准答案展示和提问时间按 v2 重写。对照说明见「v2 题集说明」。")
     types = ["全部", *data.type_counts.keys()]
     filter_col, search_col = st.columns([1, 2])
     selected_type = filter_col.selectbox("题型", types)
@@ -148,6 +373,9 @@ with tab_questions:
                 if message_id in lookup:
                     render_message(lookup[message_id], evidence=True)
 
+with tab_dataset:
+    render_dataset_changelog()
+
 with tab_run:
     st.subheader("启动一次评测")
     with st.form("new-evaluation"):
@@ -173,10 +401,15 @@ with tab_run:
                 "MindMemOS 通过独立部署的 HTTP 服务构建和检索记忆；首次运行写入 284 条消息，"
                 "后续 Top3/Top10 共用本地 manifest。需要在 .env 配置服务地址和 API key。"
             )
+        elif method_id == "everos":
+            st.caption(
+                "EverOS 按 episode + 提问时间建立隔离 checkpoint，通过 Hybrid + BGE-M3 "
+                "检索 episode/atomic facts；首次运行需要等待 EverOS 抽取与索引，后续复用本地缓存。"
+            )
         top_k = st.slider("Top K", min_value=1, max_value=20, value=10)
         with_llm = st.checkbox("运行 Reader + Judge（端到端评测）", value=False)
         st.caption(
-            "浏览预置结果和运行 BM25 不需要 API Key；Mem0、TeamAgent、MindMemOS "
+            "浏览预置结果和运行 BM25 不需要 API Key；Mem0、TeamAgent、MindMemOS、EverOS "
             "或端到端 Reader/Judge 需要相应的本地/内网模型与服务配置。"
         )
         llm_col_a, llm_col_b, llm_col_c = st.columns([2, 2, 1])
@@ -387,134 +620,64 @@ with tab_results:
 
 with tab_leaderboard:
     st.subheader("Leaderboard")
-    with st.expander("评测指标说明", expanded=False):
+    with st.expander("评测指标说明", expanded=True):
         st.markdown(
             """
             | 指标 | 含义 | 如何理解 |
             |---|---|---|
-            | **Top K** | Memory 系统最多返回的证据单元数量 | BM25/TeamAgent 返回原消息，Mem0/MindMemOS 返回抽取后的记忆。Top K 不同必须分开比较。 |
-            | **Hit@K** | Top K 证据单元的源消息中是否至少包含一条 Oracle 证据，再对全部题目取平均 | 衡量“有没有找到证据”；命中一条即记为 1，否则为 0。 |
-            | **Recall@K** | Top K 证据单元关联的 Oracle 源消息数 ÷ 该题全部 Oracle 证据数，再取平均 | 衡量“证据找得全不全”；多跳问题通常需要较高 Recall。 |
-            | **MRR** | 第一条 Oracle 证据排名的倒数，再对全部题目取平均 | 第一名命中得 1，第二名得 0.5，未命中得 0；越高说明正确证据越靠前。 |
-            | **Answer Accuracy** | Reader 答案被 LLM Judge 判定为正确的题数 ÷ 总题数 | 端到端指标，同时受检索质量、Reader 推理和 Judge 判定影响。 |
+            | **Top K** | Memory 系统最多返回的证据单元数量 | BM25/TeamAgent 一条是一条原消息；EverOS 一条是整个 event 的记忆；MindMemOS 一条是抽取后的记忆。Top K 不同、计分单元不同都必须分开看。 |
+            | **Hit@K** | Top K 证据单元映射回的源消息中，是否至少包含一条 Oracle 证据，再对全部题目取平均 | 只说明“来源对上了”，不保证记忆正文能回答问题。 |
+            | **Recall@K** | Top K 证据单元关联的 Oracle 源消息数 ÷ 该题全部 Oracle 证据数，再取平均 | EverOS 命中一个 event 会认领该事件全部消息，Recall 会系统性偏高。 |
+            | **MRR** | 第一条 Oracle 证据所在单元排名的倒数，再对全部题目取平均 | 第一名命中得 1，第二名得 0.5，未命中得 0。 |
+            | **Answer Accuracy** | Reader 答案被 LLM Judge 判定为正确的题数 ÷ 总题数 | **横向比较的主指标。** 同时受检索、记忆改写、Reader 和 Judge 影响。 |
 
-            **注意：** Hit@K 高不代表答案一定正确。只命中一条证据时，可能仍缺少多跳问题的其他证据；Reader 也可能在证据充分时推理错误。
+            **EverOS 的 Hit 为什么能到 97%，Acc 却没那么高**
+
+            EverOS 按 `event_id` 把多条原始消息打成一条记忆，计分时用 `session_id` 把该事件里**全部** `message_id` 算作召回。
+            证据往往整段落在同一个 event 里，所以召回一条记忆，Hit/Recall 几乎就算满分。
+            这测的是“有没有找到对的事件组”，不是“记忆正文里有没有可答题的事实”。
+            Reader 读到的是改写后的 summary / atomic facts，时区还可能被写成 UTC，所以 Acc 会明显低于 Hit。
+            v2 Top3：Hit 97.1%，Acc 73.8%。**不要用 EverOS 的 Hit/Recall 和 BM25、TeamAgent 比检索能力。**
+
+            **MindMemOS 的 Hit 为什么通常更低**
+
+            MindMemOS 返回的也是抽取后的记忆，不是原消息。一条记忆往往对应若干原消息里被压缩过的事实，
+            计分靠来源时间和写入 manifest 回映 `message_id`。漏映射、压缩丢字段都会让 Hit 低于按原消息检索的方法；
+            即便 Hit 上了，Reader 仍可能答错。横向比较同样以 Acc 为准。
+
+            Hit@K 高不代表答案一定正确。v1 / v2 题集分榜，互不覆盖。v2 改了题面、时间对齐和 Judge，详见「v2 题集说明」。
             """
         )
+    st.markdown(
+        '<div class="eval-note"><strong>怎么读榜：</strong>方法之间请看 '
+        "<strong>Answer Accuracy</strong>。"
+        "EverOS 的 Hit@K / Recall@K 按 event 整组认领源消息，会出现 Hit≈97%、Acc 只有七十多的情况，"
+        "不能据此认为它检索远强于 BM25 / TeamAgent。"
+        "MindMemOS 返回压缩记忆，Hit 是映射回原消息后的结果，通常低于原消息检索，同样以 Acc 为准。"
+        "</div>",
+        unsafe_allow_html=True,
+    )
     runs = list_runs()
     if not runs:
         st.info("完成至少一次评测后显示排名。")
     else:
-        full_runs = [
-            run
-            for run in runs
-            if int((run.get("summary") or {}).get("questions") or 0) == len(data.questions)
-            and int((run.get("summary") or {}).get("llm_errors") or 0) == 0
-            and (run.get("summary") or {}).get("answer_accuracy") is not None
-            and (run.get("method") or {}).get("method_id") in MEMORY_SYSTEMS
-            and (run.get("method") or {}).get("version")
-            == MEMORY_SYSTEMS[(run.get("method") or {}).get("method_id")].version
-        ]
-        deduplicated_runs: list[dict[str, Any]] = []
-        seen_configurations: set[tuple[Any, ...]] = set()
-        for run in full_runs:
-            method = run.get("method") or {}
-            configuration = (
-                method.get("method_id"),
-                method.get("version"),
-                method.get("top_k"),
-                method.get("memory_llm_model"),
-                method.get("reader_model"),
-                method.get("judge_model"),
-                method.get("memory_algorithm"),
-                method.get("search_strategy"),
-                method.get("rerank"),
-            )
-            if configuration in seen_configurations:
-                continue
-            seen_configurations.add(configuration)
-            deduplicated_runs.append(run)
-        full_runs = deduplicated_runs
-        available_top_k = sorted(
-            {
-                int((run.get("method") or {}).get("top_k"))
-                for run in full_runs
-                if (run.get("method") or {}).get("top_k") is not None
-            }
-        )
-        if not available_top_k:
-            st.info("还没有完成全部题目且运行无错误的评测记录。")
-            st.stop()
-        selected_top_k = st.radio(
-            "评测配置",
-            options=available_top_k,
-            format_func=lambda value: f"Top K = {value}",
-            horizontal=True,
-        )
-        configured_runs = [
-            run
-            for run in full_runs
-            if int((run.get("method") or {}).get("top_k") or 0) == selected_top_k
-        ]
-        rank_by_answer = any(
-            (run.get("summary") or {}).get("answer_accuracy") is not None
-            for run in configured_runs
-        )
-        leaderboard = sorted(
-            [
-                {
-                    "方法": (run.get("method") or {}).get("display_name"),
-                    "LLM 模型": llm_model_label(run),
-                    "版本": (run.get("method") or {}).get("version"),
-                    "Top K": (run.get("method") or {}).get("top_k"),
-                    "题数": (run.get("summary") or {}).get("questions"),
-                    "Hit@K": (run.get("summary") or {}).get("hit_rate"),
-                    "Recall@K": (run.get("summary") or {}).get("mean_evidence_recall"),
-                    "MRR": (run.get("summary") or {}).get("mrr"),
-                    "Answer Accuracy": (run.get("summary") or {}).get("answer_accuracy"),
-                    "时间": run.get("created_at"),
-                }
-                for run in configured_runs
-            ],
-            key=lambda row: (
-                float(row["Answer Accuracy"] if row["Answer Accuracy"] is not None else -1)
-                if rank_by_answer
-                else float(row["Hit@K"] or 0),
-                float(row["Recall@K"] or 0),
-                float(row["MRR"] or 0),
-            ),
-            reverse=True,
-        )
-        ranking_metric = "Answer Accuracy" if rank_by_answer else "Hit@K"
-        st.caption(
-            f"当前仅比较 Top K = {selected_top_k}、完整 {len(data.questions)} 题且无运行错误的结果；"
-            f"按 {ranking_metric} 排名。"
-        )
-        for rank, row in enumerate(leaderboard, start=1):
-            row["排名"] = rank
-        st.dataframe(
-            leaderboard,
-            column_order=[
-                "排名",
-                "方法",
-                "LLM 模型",
-                "版本",
-                "Top K",
-                "题数",
-                "Hit@K",
-                "Recall@K",
-                "MRR",
-                "Answer Accuracy",
-                "时间",
-            ],
-            width="stretch",
-            hide_index=True,
-            column_config={
-                "Hit@K": st.column_config.NumberColumn("Hit@K", format="percent"),
-                "Recall@K": st.column_config.NumberColumn("Recall@K", format="percent"),
-                "MRR": st.column_config.NumberColumn("MRR", format="%.3f"),
-                "Answer Accuracy": st.column_config.NumberColumn(
-                    "Answer Accuracy", format="percent"
+        question_count = len(data.questions)
+        v1_tab, v2_tab = st.tabs(["v1 题集（原榜）", "v2 题集"])
+        with v1_tab:
+            render_leaderboard_table(
+                eligible_leaderboard_runs(
+                    runs, board="v1", question_count=question_count
                 ),
-            },
-        )
+                board_label="v1 题集",
+                question_count=question_count,
+                widget_key="leaderboard_top_k_v1",
+            )
+        with v2_tab:
+            render_leaderboard_table(
+                eligible_leaderboard_runs(
+                    runs, board="v2", question_count=question_count
+                ),
+                board_label="v2 题集",
+                question_count=question_count,
+                widget_key="leaderboard_top_k_v2",
+            )

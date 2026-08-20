@@ -1,0 +1,280 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0008_v002.json",
+  "episode_id": "ep_prototype_0008_v002",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "knowledge_absence",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 6,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-16 12:03，在“Q3 数据重跑执行”讨论中，最终是否产出可信结果？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:03:00+08:00",
+        "thread_ids": [
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": false,
+        "answer_type": "boolean",
+        "answer_display": false
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.credible_result_produced"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-16T12:03:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "结合“跨团队数据权限申请与回收”和“Q3 数据重跑执行”两处讨论，哪些修复措施已落地？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:03:00+08:00",
+        "thread_ids": [
+          "t_permission",
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": [
+          "permission_window_fixed",
+          "upstream_delivery_fixed"
+        ],
+        "answer_type": "list",
+        "answer_display": [
+          "permission_window_fixed",
+          "upstream_delivery_fixed"
+        ]
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.repairs_applied"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006",
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "结合“跨团队数据权限申请与回收”和“Q3 数据重跑执行”两处讨论，为什么停摆？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:03:00+08:00",
+        "thread_ids": [
+          "t_permission",
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "沙箱审批材料编造，数据可信度存疑",
+        "answer_type": "text",
+        "answer_display": "沙箱审批材料编造，数据可信度存疑"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.suspension_reason"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012",
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-16 12:03，在“Q3 数据重跑执行”讨论中，用户是否已决策？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:03:00+08:00",
+        "thread_ids": [
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": false,
+        "answer_type": "boolean",
+        "answer_display": false
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.decision_made"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-16T12:03:00+08:00"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“Q3 数据重跑执行”讨论中，2026-09-16 09:02的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:03:00+08:00",
+        "thread_ids": [
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "运行中",
+        "answer_type": "text",
+        "answer_display": "运行中"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_05.truth.credible_result_produced"
+      ],
+      "evidence_event_ids": [
+        "ev_01",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-16T09:02:00+08:00",
+        "before_event_id": "ev_05"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0008_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-16 12:02，在“Q3 数据重跑执行”讨论中的“rerun_suspension”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "业务负责人",
+        "query_time": "2026-09-16T12:02:00+08:00",
+        "thread_ids": [
+          "t_rerun"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已暂停",
+        "answer_type": "text",
+        "answer_display": "已暂停"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0014",
+        "m_0015",
+        "m_0016"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-16T12:02:00+08:00"
+      },
+      "question_id": "q_0006"
+    }
+  ]
+}

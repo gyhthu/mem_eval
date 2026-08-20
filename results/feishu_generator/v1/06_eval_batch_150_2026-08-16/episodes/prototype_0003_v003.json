@@ -1,0 +1,515 @@
+{
+  "episode_id": "ep_prototype_0003_v003",
+  "scenario": "内容发布排期与合规复核",
+  "start_time": "2026-09-19T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0003",
+    "source_task_ids": [
+      "task_0015"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 3；使用“内容发布排期与合规复核”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "内容运营负责人",
+      "responsibility": "提出内容合规复核需求，确认排期节点，配合补测并确认重试安排",
+      "knowledge_boundary": "知道活动页文案、排期日期和复核状态；不知道平台校验规则实现细节和第三方签章服务故障原因"
+    },
+    {
+      "id": "u_compliance",
+      "kind": "human",
+      "role": "合规专员",
+      "responsibility": "依据广告合规要求审核文案，给出修改意见，确认补测结果是否满足合规要求",
+      "knowledge_boundary": "知道法规要求、复核结论和补测结果；不知道发布平台内部实现和外部服务中断原因"
+    },
+    {
+      "id": "u_platform",
+      "kind": "human",
+      "role": "发布平台工程师",
+      "responsibility": "配置和实现平台合规校验，处理最终状态回写，排查外部服务中断并安排重试",
+      "knowledge_boundary": "知道自动化校验逻辑、回写接口参数和外部服务状态；不掌握营销文案的合规措辞细节"
+    },
+    {
+      "id": "bot_compliance",
+      "kind": "bot",
+      "role": "合规复核 Bot",
+      "responsibility": "按规则库执行免责声明等强制项自动检测并输出通过/不通过结果",
+      "knowledge_boundary": "只允许访问当前补测用例和规则库；不知道排期窗口和第三方签章服务状态"
+    },
+    {
+      "id": "bot_schedule",
+      "kind": "bot",
+      "role": "排期 Bot",
+      "responsibility": "维护发布排期状态，执行最终状态回写，并在回写失败时报告错误",
+      "knowledge_boundary": "只允许访问排期任务状态与回写接口返回值；不知道具体合规规则和文案内容"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_review",
+      "title": "秋季会员活动页合规复核"
+    },
+    {
+      "thread_id": "t_schedule",
+      "title": "发布排期与最终状态回写"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "compliance_review_finding",
+      "prompt_type": "new_topic",
+      "thread_id": "t_review",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "u_compliance"
+      ],
+      "truth": {
+        "draft_name": "秋季会员活动页 v1.2",
+        "review_result": "不通过",
+        "issue": "价格区缺少‘限时优惠最终解释权归活动方’声明",
+        "required_fix": "补充免责声明",
+        "review_status": "待修改"
+      },
+      "communication_goal": "运营发起合规复核，合规专员指出免责声明缺失并要求修改后补测",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "review_issue",
+          "value": "价格区缺少免责声明"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "待修改"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "remediation_test_added",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_review",
+      "offset_minutes": 25,
+      "actors": [
+        "u_platform",
+        "u_owner"
+      ],
+      "truth": {
+        "check_added": "免责声明强制校验",
+        "test_scope": "价格区",
+        "test_status": "待补测",
+        "test_owner": "u_owner"
+      },
+      "communication_goal": "平台工程师说明已增加强制校验，请运营在测试预览页触发补测",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "test_execution_owner",
+          "value": "u_owner"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "test_status",
+          "value": "待补测"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "bot_test_confirmation",
+      "prompt_type": "bot_response",
+      "thread_id": "t_review",
+      "offset_minutes": 55,
+      "actors": [
+        "u_platform",
+        "u_compliance",
+        "bot_compliance"
+      ],
+      "truth": {
+        "trigger": "u_platform 发起自动补测",
+        "test_case": "disclaimer_mandatory_check",
+        "test_result": "通过",
+        "test_confirmed": true,
+        "review_status": "待回写"
+      },
+      "communication_goal": "合规复核 Bot 返回补测通过，合规专员确认可进入排期回写",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "test_result",
+          "value": "通过"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "待回写"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "external_writeback_interruption",
+      "prompt_type": "bot_response",
+      "thread_id": "t_schedule",
+      "offset_minutes": 90,
+      "actors": [
+        "bot_schedule",
+        "u_platform"
+      ],
+      "truth": {
+        "writeback_target": "排期系统发布状态",
+        "attempt_status": "failed",
+        "outage_service": "第三方签章留痕服务",
+        "outage_reason": "服务返回 502 超时",
+        "writeback_result": "失败",
+        "task_status": "未收口"
+      },
+      "communication_goal": "排期 Bot 报告最终状态回写失败，说明第三方签章服务超时，平台工程师确认原因",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "writeback_result",
+          "value": "失败"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "outage_reason",
+          "value": "第三方签章服务 502 超时"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "closure_status",
+          "value": "未收口"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "retry_wait_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_schedule",
+      "offset_minutes": 130,
+      "actors": [
+        "u_platform",
+        "u_owner",
+        "bot_schedule"
+      ],
+      "truth": {
+        "retry_required": true,
+        "retry_owner": "u_platform",
+        "retry_condition": "外部签章服务恢复后",
+        "task_status": "未收口",
+        "closure_status": "待重试"
+      },
+      "communication_goal": "确认由平台工程师在服务恢复后手动重试回写，当前任务暂不正式收口",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retry_owner",
+          "value": "u_platform"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "need_retry",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "closure_status",
+          "value": "待重试"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "任务是否已收口",
+      "answer_path": "event:ev_05.truth.task_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "中断原因是什么",
+      "answer_path": "event:ev_04.truth.outage_reason",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "补测是否已确认",
+      "answer_path": "event:ev_03.truth.test_confirmed",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "是否需要重试收口",
+      "answer_path": "event:ev_05.truth.retry_required",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-19T09:00:00+08:00",
+      "content": "@u_compliance 秋季会员活动页 v1.2 赶排期，先麻烦过一遍合规复核，重点看价格区。",
+      "reply_to": null,
+      "mentions": [
+        "u_compliance"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-19T09:01:00+08:00",
+      "content": "看了，价格区少了“限时优惠最终解释权归活动方”这句，需要补上才能通过。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-19T09:02:00+08:00",
+      "content": "收到，我这边补上。改完直接发你确认，通过后走发布？",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-19T09:03:00+08:00",
+      "content": "对，改完先发我确认，确认后可以发布。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_platform",
+      "timestamp": "2026-09-19T09:25:00+08:00",
+      "content": "@u_owner 价格区的免责声明我这边加了强制校验，你改完文案后到测试预览页触发一下补测，我好确认结果。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-19T09:26:00+08:00",
+      "content": "好，我改完马上在预览页触发补测。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "bot_compliance",
+      "timestamp": "2026-09-19T09:55:00+08:00",
+      "content": "关于“bot_test_confirmation”，这一步需要合规复核 Bot 返回补测通过，合规专员确认可进入排期回写。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "candidate",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_platform",
+      "timestamp": "2026-09-19T09:56:00+08:00",
+      "content": "当前可确认的信息是：{\"trigger\":\"u_platform 发起自动补测\",\"test_case\":\"disclaimer_mandatory_check\",\"test_result\":\"通过\",\"test_confirmed\":true,\"review_status\":\"待回写\"}。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-19T09:57:00+08:00",
+      "content": "当前可确认的信息是：{\"trigger\":\"u_platform 发起自动补测\",\"test_case\":\"disclaimer_mandatory_check\",\"test_result\":\"通过\",\"test_confirmed\":true,\"review_status\":\"待回写\"}。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_schedule",
+      "author_id": "bot_schedule",
+      "timestamp": "2026-09-19T10:30:00+08:00",
+      "content": "@u_platform 排期系统最终状态回写失败，第三方签章留痕服务返回 502 超时，任务状态未收口。",
+      "reply_to": null,
+      "mentions": [
+        "u_platform"
+      ],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_schedule",
+      "author_id": "u_platform",
+      "timestamp": "2026-09-19T10:31:00+08:00",
+      "content": "收到，我查一下签章服务的问题，可能是 502 超时导致回写失败，处理后再通知你重试。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_05",
+      "thread_id": "t_schedule",
+      "author_id": "u_platform",
+      "timestamp": "2026-09-19T11:10:00+08:00",
+      "content": "签章服务还没恢复，我先保留任务不正式收口。等恢复后我手动重试回写。@bot_schedule 保持待重试，别自动跑。",
+      "reply_to": null,
+      "mentions": [
+        "bot_schedule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_schedule",
+      "author_id": "bot_schedule",
+      "timestamp": "2026-09-19T11:11:00+08:00",
+      "content": "状态已设待重试，不自动回写，等你手动触发。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "none",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_schedule",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-19T11:12:00+08:00",
+      "content": "好，那我们排期先不标完成，等回写成功后再算。",
+      "reply_to": "m_0013",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "review_issue": "价格区缺少免责声明",
+      "outage_reason": "第三方签章服务 502 超时"
+    },
+    "decisions": {
+      "need_retry": true
+    },
+    "open_questions": {
+      "review_status": "待回写",
+      "test_status": "待补测",
+      "closure_status": "待重试"
+    },
+    "commitments": {
+      "test_execution_owner": "u_owner",
+      "retry_owner": "u_platform"
+    },
+    "bot_outputs": {
+      "test_result": "通过",
+      "writeback_result": "失败"
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

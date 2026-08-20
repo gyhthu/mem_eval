@@ -11,12 +11,9 @@ RUN pip install --no-cache-dir -r /app/requirements-full.txt && \
     python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-zh-v1.5')"
 
 COPY src /app/src
-COPY results/feishu_generator/batch_150_2026-08-16/questions_aggregate.json \
-    /app/results/feishu_generator/batch_150_2026-08-16/questions_aggregate.json
-COPY results/feishu_generator/batch_150_2026-08-16/episodes \
-    /app/results/feishu_generator/batch_150_2026-08-16/episodes
-COPY results/feishu_generator/episode_from_prototype_0004.json \
-    /app/results/feishu_generator/episode_from_prototype_0004.json
+COPY results/feishu_generator/README.md /app/results/feishu_generator/README.md
+COPY results/feishu_generator/v1 /app/results/feishu_generator/v1
+COPY results/feishu_generator/v2 /app/results/feishu_generator/v2
 COPY results/eval_platform/runs /app/results/eval_platform/runs
 
 EXPOSE 8501

@@ -1,0 +1,524 @@
+{
+  "episode_id": "ep_prototype_0005_v003",
+  "scenario": "线下活动场地和预算协调",
+  "start_time": "2026-09-21T09:00:00+08:00",
+  "participants": [
+    {
+      "id": "u_activity",
+      "kind": "human",
+      "role": "活动策划负责人",
+      "responsibility": "提供历史活动样本、确认活动规模和场地需求",
+      "knowledge_boundary": "知道历史审批记录和活动人数；不了解预算规则库的内部实现"
+    },
+    {
+      "id": "u_finance",
+      "kind": "human",
+      "role": "财务BP",
+      "responsibility": "负责预算规则基线和审批口径，确认根因和规则补齐",
+      "knowledge_boundary": "了解预算规则库和当前规则版本；不知道场地运营的具体细节"
+    },
+    {
+      "id": "u_compliance",
+      "kind": "human",
+      "role": "合规专员",
+      "responsibility": "确认安保和合规要求，辅助制定判定规则",
+      "knowledge_boundary": "掌握安保合规标准；不熟悉预算系统代码和验证流程"
+    },
+    {
+      "id": "bot_budget",
+      "kind": "bot",
+      "role": "预算规则 Bot",
+      "responsibility": "执行基线判定、返回结果、维护规则库",
+      "knowledge_boundary": "仅允许访问规则库和历史样本，不访问群聊讨论和人工临时决策"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目协调 Bot",
+      "responsibility": "创建跟进任务、记录重炼事项状态",
+      "knowledge_boundary": "仅允许访问任务和跟进状态，不访问预算规则库和验证细节"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_regression",
+      "title": "预算规则基线回归"
+    },
+    {
+      "thread_id": "t_retrain",
+      "title": "真模型重炼收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "sample_provided",
+      "prompt_type": "new_topic",
+      "thread_id": "t_regression",
+      "offset_minutes": 0,
+      "actors": [
+        "u_activity",
+        "bot_budget"
+      ],
+      "truth": {
+        "sample_ref": "EVT-2024-OP-0523",
+        "headcount": 520,
+        "status": "submitted"
+      },
+      "communication_goal": "活动策划负责人提供历史审批样本，说明该样本曾通过审批，请预算 Bot 进行基线判定",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "baseline_status",
+          "value": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "root_cause_reproduced",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_regression",
+      "offset_minutes": 25,
+      "actors": [
+        "bot_budget",
+        "u_finance",
+        "u_compliance"
+      ],
+      "truth": {
+        "baseline_result": "failed",
+        "root_cause": "missing_headcount_rule",
+        "rule_missing": "headcount>500",
+        "status": "identified"
+      },
+      "communication_goal": "预算 Bot 返回基线失败，财务BP和合规专员确认根因是历史规则漏配，纠正此前对样本可用性的判断",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "root_cause",
+          "value": "missing_headcount_rule"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "prior_baseline_status",
+          "value": "assumed_available"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "judgment_family_completed",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_regression",
+      "offset_minutes": 50,
+      "actors": [
+        "u_finance",
+        "u_compliance",
+        "u_activity"
+      ],
+      "truth": {
+        "added_rules": [
+          "headcount>500",
+          "venue_type=outdoor"
+        ],
+        "rule_version": "v2.3",
+        "status": "confirmed"
+      },
+      "communication_goal": "团队讨论并确认补入两条判定规则，更新规则库至 v2.3，为端到端验证做准备",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "added_rules",
+          "value": [
+            "headcount>500",
+            "venue_type=outdoor"
+          ]
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "rule_version",
+          "value": "v2.3"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "e2e_verification_passed",
+      "prompt_type": "bot_response",
+      "thread_id": "t_regression",
+      "offset_minutes": 80,
+      "actors": [
+        "bot_budget",
+        "u_finance"
+      ],
+      "truth": {
+        "verification_status": "passed",
+        "sample_ref": "EVT-2024-OP-0523",
+        "rule_version": "v2.3",
+        "passed_at": "2026-09-01T10:20:00+08:00"
+      },
+      "communication_goal": "预算 Bot 执行端到端验证并返回通过，财务BP确认结果",
+      "message_count": {
+        "min": 1,
+        "max": 2
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "e2e_result",
+          "value": "passed"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "verified_rule_version",
+          "value": "v2.3"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "retrain_background_pending",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_retrain",
+      "offset_minutes": 120,
+      "actors": [
+        "u_finance",
+        "bot_project",
+        "u_activity"
+      ],
+      "truth": {
+        "retrain_status": "pending",
+        "retrain_task_id": "RT-2026-0901-01",
+        "follow_up_owner": "u_finance",
+        "due": "2026-09-03"
+      },
+      "communication_goal": "财务BP确认真模型重炼在后台进行，尚未完成，项目 Bot 创建跟进任务，待收口",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retrain_followup",
+          "value": "u_finance"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "retrain_completion",
+          "value": "pending"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "端到端验证是否通过",
+      "answer_path": "event:ev_04.truth.verification_status",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "根因是什么",
+      "answer_path": "event:ev_02.truth.root_cause",
+      "evidence_event_ids": [
+        "ev_02"
+      ]
+    },
+    {
+      "hook": "真模型重炼是否完成",
+      "answer_path": "event:ev_05.truth.retrain_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "哪些判定族被补齐",
+      "answer_path": "event:ev_03.truth.added_rules",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    }
+  ],
+  "prototype_trace": {
+    "prototype_id": "prototype_0005",
+    "source_task_ids": [
+      "task_0017"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "knowledge_absence"
+    ],
+    "variation_hint": "变体编号 3；使用“线下活动场地和预算协调”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_regression",
+      "author_id": "u_activity",
+      "timestamp": "2026-09-21T09:00:00+08:00",
+      "content": "@预算Bot 麻烦看个历史审批样本，EVT-2024-OP-0523，之前通过过的活动。",
+      "reply_to": null,
+      "mentions": [
+        "bot_budget"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_regression",
+      "author_id": "bot_budget",
+      "timestamp": "2026-09-21T09:01:00+08:00",
+      "content": "收到，我查一下规则库。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_regression",
+      "author_id": "u_activity",
+      "timestamp": "2026-09-21T09:02:00+08:00",
+      "content": "@预算Bot 人数520，当时审批没问题，这个样本能直接判定吧？",
+      "reply_to": "m_0002",
+      "mentions": [
+        "bot_budget"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_regression",
+      "author_id": "bot_budget",
+      "timestamp": "2026-09-21T09:03:00+08:00",
+      "content": "收到，样本信息会和规则库历史记录核对，基线判定需要点时间，稍后回复结果。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_regression",
+      "author_id": "bot_budget",
+      "timestamp": "2026-09-21T09:25:00+08:00",
+      "content": "基线判定结果：failed。历史样本核对后，规则库缺少 headcount>500 这条规则，所以该样本无法按现有规则通过。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_regression",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T09:26:00+08:00",
+      "content": "那就是之前判断“样本能直接判定”不成立？基线失败是因为缺规则，不是样本本身的问题。",
+      "reply_to": "m_0005",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_02",
+      "thread_id": "t_regression",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-21T09:27:00+08:00",
+      "content": "对，headcount>500 这个条件缺失，跟样本本身没关系。得先把规则补上再重跑基线。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_02",
+      "thread_id": "t_regression",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T09:28:00+08:00",
+      "content": "好，那按基线失败处理，先补规则，补完再让Bot重跑验证。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_regression",
+      "author_id": "u_compliance",
+      "timestamp": "2026-09-21T09:50:00+08:00",
+      "content": "补规则的话，headcount>500 要加，还有超500人的户外场地，合规上也要限定 venue_type=outdoor，不然户外审批口径对不上。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_03",
+      "thread_id": "t_regression",
+      "author_id": "u_activity",
+      "timestamp": "2026-09-21T09:51:00+08:00",
+      "content": "对，户外场地那条也得有，我这边见过好几个户外大场地的样本。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_03",
+      "thread_id": "t_regression",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T09:52:00+08:00",
+      "content": "行，两条都补，规则版本更新到 v2.3，再把基线重跑验证一遍。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_regression",
+      "author_id": "bot_budget",
+      "timestamp": "2026-09-21T10:20:00+08:00",
+      "content": "端到端验证通过，样本 EVT-2024-OP-0523，规则版本 v2.3。",
+      "reply_to": "m_0011",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_04",
+      "thread_id": "t_regression",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T10:21:00+08:00",
+      "content": "收到，基线状态更新为通过。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_05",
+      "thread_id": "t_retrain",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T11:00:00+08:00",
+      "content": "重炼任务RT-2026-0901-01还没跑完，后台状态还是pending。帮我建个跟进，别在这边漏了。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_05",
+      "thread_id": "t_retrain",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-21T11:01:00+08:00",
+      "content": "已建好：RT-2026-0901-01，负责人@u_finance，截止9月3日，当前状态pending。重炼完成我再更新。",
+      "reply_to": "m_0014",
+      "mentions": [
+        "u_finance"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_05",
+      "thread_id": "t_retrain",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-21T11:02:00+08:00",
+      "content": "嗯，那就等重炼结果出来同步。先这样。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "root_cause": "missing_headcount_rule",
+      "verified_rule_version": "v2.3"
+    },
+    "decisions": {
+      "added_rules": [
+        "headcount>500",
+        "venue_type=outdoor"
+      ],
+      "rule_version": "v2.3"
+    },
+    "open_questions": {
+      "baseline_status": "pending",
+      "retrain_completion": "pending"
+    },
+    "commitments": {
+      "retrain_followup": "u_finance"
+    },
+    "bot_outputs": {
+      "e2e_result": "passed"
+    },
+    "corrections": {
+      "prior_baseline_status": "assumed_available"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

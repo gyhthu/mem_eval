@@ -1,0 +1,477 @@
+{
+  "episode_id": "ep_prototype_0002_v002",
+  "scenario": "合同条款修订与法务确认",
+  "start_time": "2026-09-10T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0002",
+    "source_task_ids": [
+      "task_0004",
+      "task_0008"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 2；使用“合同条款修订与法务确认”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "合同业务负责人",
+      "responsibility": "提交合同模板修订稿，确认业务条款口径，并在核验通过后做最终收口确认",
+      "knowledge_boundary": "知道本次修订涉及的条款范围和目标版本 v2.3，不知道法务/外部律师逐条核验的具体结论，直到核验结果在群里共享"
+    },
+    {
+      "id": "u_legal",
+      "kind": "human",
+      "role": "法务顾问",
+      "responsibility": "逐条核对修订条款与业务口径，给出内部法务核验意见并汇总待处置项",
+      "knowledge_boundary": "知道修订差异清单和业务背景，知道内部核验进展，不提前知道外部律师独立意见；外部律师未确认前不能宣称最终无待处置项"
+    },
+    {
+      "id": "u_external",
+      "kind": "human",
+      "role": "外部合作律师",
+      "responsibility": "对高风险修订条款做独立法律复核，确认是否存在待处置项，作为最终核验人",
+      "knowledge_boundary": "只知道被委托复核的条款清单和修订文本，不知道项目排期、群内其他讨论或收口流程状态"
+    },
+    {
+      "id": "bot_doc",
+      "kind": "bot",
+      "role": "条款文档 Bot",
+      "responsibility": "从合同版本库提取修订条款差异清单和版本基线，供法务核验",
+      "knowledge_boundary": "仅允许访问合同模板版本库和差异记录，不允许访问核验结论、待处置项判断或收口状态"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "记录复核流程状态、更新收口状态并归档",
+      "knowledge_boundary": "仅允许读取当前事件中明确给出的状态字段，不知道法务/律师的核验细节，也不得提前输出收口结论"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_review",
+      "title": "合同模板 v2.3 修订条款复核与收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "review_submission",
+      "prompt_type": "new_topic",
+      "thread_id": "t_review",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "bot_project"
+      ],
+      "truth": {
+        "status": "待复核",
+        "revision": "v2.3",
+        "submitted_by": "u_owner",
+        "requested_review": "条款级法务复核"
+      },
+      "communication_goal": "合同业务负责人提交合同模板 v2.3 修订稿，说明需要法务复核的条款范围，并触发项目管理 Bot 创建复核任务。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "待复核"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "submitted_revision",
+          "value": "v2.3"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "clause_diff_extraction",
+      "prompt_type": "bot_response",
+      "thread_id": "t_review",
+      "offset_minutes": 10,
+      "actors": [
+        "u_owner",
+        "bot_doc"
+      ],
+      "truth": {
+        "status": "核验中",
+        "baseline_version": "v2.2",
+        "changed_clauses": [
+          "第4条 服务范围",
+          "第7条 赔偿责任上限",
+          "第12条 保密期限"
+        ],
+        "diff_ready": true,
+        "bot_correctness": true
+      },
+      "communication_goal": "条款文档 Bot 根据修订记录提取差异条款清单和版本基线，作为法务逐项核验的输入。",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "clause_diff_list",
+          "value": [
+            "第4条 服务范围",
+            "第7条 赔偿责任上限",
+            "第12条 保密期限"
+          ]
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "核验中"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "baseline_version",
+          "value": "v2.2"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "verification_result",
+      "prompt_type": "threaded_reply",
+      "thread_id": "t_review",
+      "offset_minutes": 40,
+      "actors": [
+        "u_legal",
+        "u_external"
+      ],
+      "truth": {
+        "status": "验证通过",
+        "verification_scope": [
+          "第4条 服务范围",
+          "第7条 赔偿责任上限",
+          "第12条 保密期限"
+        ],
+        "has_pending_items": false,
+        "internal_reviewer": "u_legal",
+        "verifier": "u_external"
+      },
+      "communication_goal": "法务顾问逐条核对差异条款并与业务条款比对，外部合作律师确认没有待处置项，形成核验结论。",
+      "message_count": {
+        "min": 3,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "verification_status",
+          "value": "验证通过"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "pending_items",
+          "value": []
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "can_close",
+          "value": true
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "review_status",
+          "value": "验证通过"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "direct_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_review",
+      "offset_minutes": 60,
+      "actors": [
+        "u_owner",
+        "u_external",
+        "bot_project"
+      ],
+      "truth": {
+        "status": "已收口",
+        "closure_status": "直接收口",
+        "closed_by": "u_owner",
+        "final_confirmation": "u_external"
+      },
+      "communication_goal": "合同业务负责人与外部律师确认核验结果，项目管理 Bot 将复核批次状态更新为已收口。",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "closure_status",
+          "value": "直接收口"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "final_status",
+          "value": "已收口"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "archive_contract",
+          "value": "2026-09-02T18:00:00+08:00"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "oracle_hook": "批次是否直接收口",
+      "answer_path": "event:ev_04.truth.closure_status",
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "hook": "批次是否直接收口"
+    },
+    {
+      "oracle_hook": "是否存在待处置项",
+      "answer_path": "event:ev_03.truth.has_pending_items",
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "hook": "是否存在待处置项"
+    },
+    {
+      "oracle_hook": "谁完成最终核验",
+      "answer_path": "event:ev_03.truth.verifier",
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "hook": "谁完成最终核验"
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-10T09:00:00+08:00",
+      "content": "@bot_project 合同模板 v2.3 修订稿已提交，需要法务按本次调整的条款范围做复核，麻烦建个任务。",
+      "reply_to": null,
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_review",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-10T09:01:00+08:00",
+      "content": "收到，已创建合同模板 v2.3 条款复核任务，当前状态：待复核。",
+      "reply_to": "m_0001",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-10T09:10:00+08:00",
+      "content": "@bot_doc v2.3 已经提交了，法务那边等着核对，你先拉一下相对 v2.2 的条款差异清单吧。",
+      "reply_to": null,
+      "mentions": [
+        "bot_doc"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "bot_doc",
+      "timestamp": "2026-09-10T09:11:00+08:00",
+      "content": "@u_owner 已提取。v2.3 相对 v2.2 变更条款：第4条 服务范围、第7条 赔偿责任上限、第12条 保密期限。基线 v2.2。",
+      "reply_to": "m_0003",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-10T09:12:00+08:00",
+      "content": "收到，我转给法务按这三条核。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_legal",
+      "timestamp": "2026-09-10T09:40:00+08:00",
+      "content": "第4条、第7条、第12条我对照业务口径过了一遍，暂时没发现和业务有冲突的点。@u_external 麻烦按这三条做独立复核，尤其第7条赔偿上限的新表述。",
+      "reply_to": "m_0005",
+      "mentions": [
+        "u_external"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_external",
+      "timestamp": "2026-09-10T09:41:00+08:00",
+      "content": "已复核这三条修订文本。第7条的责任上限表述清晰，三条没有待处置项。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_legal",
+      "timestamp": "2026-09-10T09:42:00+08:00",
+      "content": "好，那这三条核验通过，没有留待处置项。我在任务里更新为验证通过。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_03",
+      "thread_id": "t_review",
+      "author_id": "u_external",
+      "timestamp": "2026-09-10T09:43:00+08:00",
+      "content": "嗯，那我这边没其他要补充的了。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_review",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-10T10:00:00+08:00",
+      "content": "@u_external 你这边没有其他补充的话，我就按三条核验通过收口了。",
+      "reply_to": "m_0009",
+      "mentions": [
+        "u_external"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_review",
+      "author_id": "u_external",
+      "timestamp": "2026-09-10T10:01:00+08:00",
+      "content": "确认，三条核验通过，可以收口。",
+      "reply_to": "m_0010",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_04",
+      "thread_id": "t_review",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-10T10:02:00+08:00",
+      "content": "@u_owner 收到，已将合同模板 v2.3 复核批次状态更新为已收口。",
+      "reply_to": "m_0011",
+      "mentions": [
+        "u_owner"
+      ],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "submitted_revision": "v2.3",
+      "baseline_version": "v2.2",
+      "verification_status": "验证通过",
+      "pending_items": [],
+      "final_status": "已收口"
+    },
+    "decisions": {
+      "can_close": true,
+      "closure_status": "直接收口"
+    },
+    "open_questions": {
+      "review_status": "验证通过"
+    },
+    "commitments": {
+      "archive_contract": "2026-09-02T18:00:00+08:00"
+    },
+    "bot_outputs": {
+      "clause_diff_list": [
+        "第4条 服务范围",
+        "第7条 赔偿责任上限",
+        "第12条 保密期限"
+      ]
+    },
+    "corrections": {}
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

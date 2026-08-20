@@ -108,6 +108,18 @@ def run_evaluation(
             env_file=env_file,
             progress=progress,
         )
+    if method_id == "everos":
+        from eval_platform.everos_eval import run_everos_retrieval
+
+        return run_everos_retrieval(
+            data=data,
+            top_k=top_k,
+            run_name=run_name,
+            limit=limit,
+            ingest_workers=memory_concurrency,
+            env_file=env_file,
+            progress=progress,
+        )
     questions = data.questions[:limit] if limit > 0 else data.questions
     system_class = MEMORY_SYSTEMS[method_id]
     indexes = {

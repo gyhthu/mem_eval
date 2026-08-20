@@ -1,0 +1,582 @@
+{
+  "episode_id": "ep_prototype_0007_v001",
+  "scenario": "财务月结与发票核验中的歧义命名清理",
+  "start_time": "2026-09-07T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0007",
+    "source_task_ids": [
+      "task_0020"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "terminology_ambiguity",
+      "source_credibility"
+    ],
+    "variation_hint": "变体编号 1；使用“财务月结与发票核验”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_finance_mgr",
+      "kind": "human",
+      "role": "财务经理",
+      "responsibility": "负责月结整体进度，确认命名歧义影响范围并拍板分类口径",
+      "knowledge_boundary": "了解财务入账要求和月结时间表，但不知道发票字段级命名细节与系统测试数据"
+    },
+    {
+      "id": "u_ap_accountant",
+      "kind": "human",
+      "role": "应付会计",
+      "responsibility": "负责发票核验、费用分类，发现并上报命名歧义，执行分类调整",
+      "knowledge_boundary": "熟悉实际发票数据和当前分类命名，但不掌握税务合规深入规则和系统测试方法"
+    },
+    {
+      "id": "u_tax_specialist",
+      "kind": "human",
+      "role": "税务专员",
+      "responsibility": "提供税务法规解释，定义分类规则和评分指标，纠正错误命名建议",
+      "knowledge_boundary": "掌握税务法规与分类标准，但不知道系统数据中具体哪些记录受影响"
+    },
+    {
+      "id": "u_it_analyst",
+      "kind": "human",
+      "role": "IT财务系统分析师",
+      "responsibility": "负责系统字段修改、运行全量测试并提交测试报告",
+      "knowledge_boundary": "熟悉数据表结构与测试脚本，但不懂税务规则和费用分类标准"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目管理 Bot",
+      "responsibility": "跟踪命名清理任务，记录重命名完成状态和测试结果",
+      "knowledge_boundary": "允许访问任务看板和测试报告，不读取发票明细与税务规则"
+    },
+    {
+      "id": "bot_rules",
+      "kind": "bot",
+      "role": "财务规则 Bot",
+      "responsibility": "根据财务知识库输出分类规则和评分指标说明",
+      "knowledge_boundary": "允许访问规则库和评分表，不读取任务进度和测试结果"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_month_end",
+      "title": "月结发票核验-命名清理"
+    },
+    {
+      "thread_id": "t_rules",
+      "title": "财务规则与评分机制"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "naming_issue_report",
+      "prompt_type": "new_topic",
+      "thread_id": "t_month_end",
+      "offset_minutes": 0,
+      "actors": [
+        "u_ap_accountant",
+        "u_finance_mgr"
+      ],
+      "truth": {
+        "ambiguous_names": [
+          "餐饮招待费",
+          "差旅交通费"
+        ],
+        "impact": "月结报销分类错误",
+        "status": "待确认"
+      },
+      "communication_goal": "应付会计说明'餐饮招待费'与'差旅交通费'存在命名歧义，导致月结分类混淆，财务经理确认需要治理",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "naming_cleanup",
+          "value": "待处理"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "renaming_conflict_resolution",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_month_end",
+      "offset_minutes": 15,
+      "actors": [
+        "u_ap_accountant",
+        "u_tax_specialist",
+        "u_finance_mgr"
+      ],
+      "truth": {
+        "proposed_name": "差旅及招待费",
+        "issue": "合并后无法区分可抵扣进项税与业务招待费",
+        "correct_names": [
+          "业务招待费-餐费",
+          "差旅费-交通"
+        ],
+        "decision": "采用分开命名"
+      },
+      "communication_goal": "应付会计建议将两个歧义名合并为'差旅及招待费'，税务专员指出这会导致进项税抵扣错误，财务经理决定采用分开命名",
+      "message_count": {
+        "min": 4,
+        "max": 6
+      },
+      "ledger_ops": [
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "merged_name_rejected",
+          "value": "不可合并"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "renaming_scheme",
+          "value": "分开命名"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "renaming_execution",
+      "prompt_type": "bot_response",
+      "thread_id": "t_month_end",
+      "offset_minutes": 45,
+      "actors": [
+        "u_it_analyst",
+        "bot_project"
+      ],
+      "truth": {
+        "renamed_fields": [
+          "费用类目"
+        ],
+        "modified_names": [
+          "业务招待费-餐费",
+          "差旅费-交通"
+        ],
+        "affected_records": 1243,
+        "status": "完成"
+      },
+      "communication_goal": "IT分析师完成字段重命名并@项目Bot，Bot确认任务完成",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "renaming_task",
+          "value": "完成"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "renaming_result",
+          "value": "重命名完成"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "full_test_pass",
+      "prompt_type": "bot_response",
+      "thread_id": "t_month_end",
+      "offset_minutes": 90,
+      "actors": [
+        "u_it_analyst",
+        "bot_project"
+      ],
+      "truth": {
+        "test_cases": 1500,
+        "passed_cases": 1500,
+        "failed_cases": 0,
+        "status": "全量测试通过"
+      },
+      "communication_goal": "IT分析师要求运行全量核验，项目Bot返回通过结果",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "test_result",
+          "value": "全部通过"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "rules_and_scores_explanation",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_rules",
+      "offset_minutes": 120,
+      "actors": [
+        "u_finance_mgr",
+        "bot_rules"
+      ],
+      "truth": {
+        "rule_mechanism": "按发票类型与费用用途双重匹配",
+        "score_metrics": [
+          "发票字段完整度",
+          "税务合规性",
+          "月结时效性"
+        ],
+        "status": "已确认"
+      },
+      "communication_goal": "财务经理询问规则与评分指标，bot_rules给出说明，财务经理确认理解",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "rule_mechanism",
+          "value": "按发票类型与费用用途双重匹配"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "score_metrics",
+          "value": "发票字段完整度,税务合规性,月结时效性"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "rules_explained",
+          "value": "已确认"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "哪些命名被修改",
+      "answer_path": "event:ev_03.truth.modified_names",
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "测试是否通过",
+      "answer_path": "event:ev_04.truth.status",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "规则分类机制如何运作",
+      "answer_path": "event:ev_05.truth.rule_mechanism",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "评分指标有哪些",
+      "answer_path": "event:ev_05.truth.score_metrics",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:00:00+08:00",
+      "content": "@财务经理 月结发现“餐饮招待费”和“差旅交通费”容易混，有几笔差旅餐费被分到餐饮招待费，导致分类错误。这个口径你们怎么定的？",
+      "reply_to": null,
+      "mentions": [
+        "u_finance_mgr"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_month_end",
+      "author_id": "u_finance_mgr",
+      "timestamp": "2026-09-07T09:01:00+08:00",
+      "content": "大概多少笔？影响大吗？",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:02:00+08:00",
+      "content": "有不少笔，主要是这两个名称太像，容易混。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_01",
+      "thread_id": "t_month_end",
+      "author_id": "u_finance_mgr",
+      "timestamp": "2026-09-07T09:03:00+08:00",
+      "content": "嗯，这个要治理。我先确认一下分类口径，晚点同步。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_01",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:04:00+08:00",
+      "content": "行，我先根据现有分类把可疑的筛出来，晚点反馈清单。我再看下有没有别的混用。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:15:00+08:00",
+      "content": "@税务专员 @财务经理 我筛完发现这两个科目太像了，好几笔都放错。要不直接合并成一个“差旅及招待费”？以后省得纠结。",
+      "reply_to": "m_0005",
+      "mentions": [
+        "u_tax_specialist",
+        "u_finance_mgr"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_tax_specialist",
+      "timestamp": "2026-09-07T09:16:00+08:00",
+      "content": "不行，合并不了。合并后没法区分可抵扣进项税和业务招待费，税务上会出错。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:17:00+08:00",
+      "content": "但是不合并的话，这种差旅中的餐费我们真不好判断归哪边。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_tax_specialist",
+      "timestamp": "2026-09-07T09:18:00+08:00",
+      "content": "所以更得分开。分类名别用“餐饮招待费”和“差旅交通费”了，改成“业务招待费-餐费”和“差旅费-交通”，按发票内容归。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_finance_mgr",
+      "timestamp": "2026-09-07T09:19:00+08:00",
+      "content": "行，就按分开命名。@u_ap_accountant 你后续调整分类就按这个口径。",
+      "reply_to": "m_0009",
+      "mentions": [
+        "u_ap_accountant"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_02",
+      "thread_id": "t_month_end",
+      "author_id": "u_ap_accountant",
+      "timestamp": "2026-09-07T09:20:00+08:00",
+      "content": "好，收到。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_03",
+      "thread_id": "t_month_end",
+      "author_id": "u_it_analyst",
+      "timestamp": "2026-09-07T09:45:00+08:00",
+      "content": "@bot_project 费用类目下的名称已按口径改完，现在叫“业务招待费-餐费”和“差旅费-交通”。全量跑批结束，1243条记录都更新了。",
+      "reply_to": "m_0011",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_03",
+      "thread_id": "t_month_end",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-07T09:46:00+08:00",
+      "content": "收到，任务已完成。已在看板记录：费用类目重命名完成，1243条记录，状态完成。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0014",
+      "event_id": "ev_04",
+      "thread_id": "t_month_end",
+      "author_id": "u_it_analyst",
+      "timestamp": "2026-09-07T10:30:00+08:00",
+      "content": "@bot_project 命名调整后帮忙跑一下全量核验，确认没影响其他功能。",
+      "reply_to": "m_0013",
+      "mentions": [
+        "bot_project"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0015",
+      "event_id": "ev_04",
+      "thread_id": "t_month_end",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-07T10:31:00+08:00",
+      "content": "已跑完全量核验：1500条用例，1500通过，0失败。状态：全量测试通过。",
+      "reply_to": "m_0014",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0016",
+      "event_id": "ev_04",
+      "thread_id": "t_month_end",
+      "author_id": "u_it_analyst",
+      "timestamp": "2026-09-07T10:32:00+08:00",
+      "content": "好，那测试报告我这边直接归档了。",
+      "reply_to": "m_0015",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0017",
+      "event_id": "ev_05",
+      "thread_id": "t_rules",
+      "author_id": "u_finance_mgr",
+      "timestamp": "2026-09-07T11:00:00+08:00",
+      "content": "@bot_rules 月结核验里发票分类和评分的口径是什么样的？我们这边要按统一规则处理。",
+      "reply_to": null,
+      "mentions": [
+        "bot_rules"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0018",
+      "event_id": "ev_05",
+      "thread_id": "t_rules",
+      "author_id": "bot_rules",
+      "timestamp": "2026-09-07T11:01:00+08:00",
+      "content": "分类按发票类型+费用用途双重匹配；评分看发票字段完整度、税务合规性、月结时效性三项。",
+      "reply_to": "m_0017",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0019",
+      "event_id": "ev_05",
+      "thread_id": "t_rules",
+      "author_id": "u_finance_mgr",
+      "timestamp": "2026-09-07T11:02:00+08:00",
+      "content": "明白，那就以这个为最终口径。我同步给月结组，按这三项指标跟踪。",
+      "reply_to": "m_0018",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "test_result": "全部通过",
+      "rule_mechanism": "按发票类型与费用用途双重匹配",
+      "score_metrics": "发票字段完整度,税务合规性,月结时效性"
+    },
+    "decisions": {
+      "renaming_scheme": "分开命名",
+      "rules_explained": "已确认"
+    },
+    "open_questions": {
+      "naming_cleanup": "待处理"
+    },
+    "commitments": {
+      "renaming_task": "完成"
+    },
+    "bot_outputs": {
+      "renaming_result": "重命名完成"
+    },
+    "corrections": {
+      "merged_name_rejected": "不可合并"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

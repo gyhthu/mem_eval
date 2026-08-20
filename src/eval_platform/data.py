@@ -8,15 +8,14 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+# v2 is the active question set. Episodes are copied from the frozen v1 batch.
 DEFAULT_QUESTIONS = (
-    REPO_ROOT
-    / "results/feishu_generator/batch_150_2026-08-16/questions_aggregate.json"
+    REPO_ROOT / "results/feishu_generator/v2/questions_aggregate.json"
 )
-DEFAULT_EPISODES_DIR = (
-    REPO_ROOT / "results/feishu_generator/batch_150_2026-08-16/episodes"
-)
+DEFAULT_EPISODES_DIR = REPO_ROOT / "results/feishu_generator/v2/episodes"
 DEFAULT_LEGACY_EPISODE = (
-    REPO_ROOT / "results/feishu_generator/episode_from_prototype_0004.json"
+    REPO_ROOT
+    / "results/feishu_generator/v1/05_pilot_0004/episode_from_prototype_0004.json"
 )
 DEFAULT_RUNS_DIR = REPO_ROOT / "results/eval_platform/runs"
 

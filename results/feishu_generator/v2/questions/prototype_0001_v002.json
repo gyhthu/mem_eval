@@ -1,0 +1,478 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0001_v002.json",
+  "episode_id": "ep_prototype_0001_v002",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "source_credibility",
+    "terminology_ambiguity"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 11,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 12:03，在“周末酸奶买二赠一规则复核”讨论中，最终是否收口？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:03:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已收口",
+        "answer_type": "text",
+        "answer_display": "已收口"
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.closure_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0016",
+        "m_0017",
+        "m_0018"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T12:03:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "结合“周末酸奶买二赠一规则复核”和“库存联动修复与复验”两处讨论，遗留哪些待处置项？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:03:00+08:00",
+        "thread_ids": [
+          "t_review",
+          "t_fix"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "无",
+        "answer_type": "text",
+        "answer_display": "无"
+      },
+      "oracle_paths": [
+        "ledger:open_questions.pending_items"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0006",
+        "m_0007",
+        "m_0008",
+        "m_0013",
+        "m_0014",
+        "m_0015"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "在“库存联动修复与复验”讨论中，谁确认修复完成？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:03:00+08:00",
+        "thread_ids": [
+          "t_fix"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_qa",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_qa",
+          "name": null,
+          "role": "测试工程师"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.confirmed_by"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“周末酸奶买二赠一规则复核”讨论中，旧结论是否被修正？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:03:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "预检通过仅确认格式，库存联动缺失需处置",
+        "answer_type": "text",
+        "answer_display": "预检通过仅确认格式，库存联动缺失需处置"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.correction"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0003",
+        "m_0004",
+        "m_0005",
+        "m_0006",
+        "m_0007",
+        "m_0008"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“库存联动修复与复验”讨论中，2026-09-09 11:02的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:03:00+08:00",
+        "thread_ids": [
+          "t_fix",
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "复验通过",
+        "answer_type": "text",
+        "answer_display": "复验通过"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_06.truth.closure_status"
+      ],
+      "evidence_event_ids": [
+        "ev_05",
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017",
+        "m_0018"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-09T11:02:00+08:00",
+        "before_event_id": "ev_06"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 09:01，在“周末酸奶买二赠一规则复核”讨论中的“submit_review”阶段，关于提交复核进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T09:01:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待复核",
+        "answer_type": "text",
+        "answer_display": "待复核"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T09:01:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "bot_writeback_pollution",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 09:12，在“周末酸奶买二赠一规则复核”讨论中的“bot_precheck”阶段，Bot 输出正确性是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T09:12:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "格式和活动政策无误，但未校验库存联动",
+        "answer_type": "text",
+        "answer_display": "格式和活动政策无误，但未校验库存联动"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.bot_correctness"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0003",
+        "m_0004",
+        "m_0005"
+      ],
+      "required_distinctions": [
+        "source_credibility"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T09:12:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 09:27，在“周末酸奶买二赠一规则复核”讨论中的“gap_discovery”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T09:27:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待处置",
+        "answer_type": "text",
+        "answer_display": "待处置"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0006",
+        "m_0007",
+        "m_0008"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T09:27:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 10:03，在“库存联动修复与复验”讨论中的“fix_implementation”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T10:03:00+08:00",
+        "thread_ids": [
+          "t_fix"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已修复",
+        "answer_type": "text",
+        "answer_display": "已修复"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T10:03:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 12:02，在“周末酸奶买二赠一规则复核”讨论中的“closure”阶段，确认人是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:02:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_manager",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_manager",
+          "name": null,
+          "role": "门店运营经理"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.confirmed_by"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0016",
+        "m_0017",
+        "m_0018"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T12:02:00+08:00"
+      },
+      "question_id": "q_0010"
+    },
+    {
+      "episode_id": "ep_prototype_0001_v002",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [],
+      "question": "截至2026-09-09 12:02，在“周末酸奶买二赠一规则复核”讨论中的“closure”阶段，生效时间是什么？",
+      "query_context": {
+        "query_user_id": "u_sales",
+        "query_user_name": null,
+        "query_user_role": "促销运营专员",
+        "query_time": "2026-09-09T12:02:00+08:00",
+        "thread_ids": [
+          "t_review"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "2026-09-05T10:00:00+08:00",
+        "answer_type": "text",
+        "answer_display": "2026-09-05T10:00:00+08:00"
+      },
+      "oracle_paths": [
+        "event:ev_06.truth.effective_time"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_06"
+      ],
+      "evidence_message_ids": [
+        "m_0016",
+        "m_0017",
+        "m_0018"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-09T12:02:00+08:00"
+      },
+      "question_id": "q_0011"
+    }
+  ]
+}

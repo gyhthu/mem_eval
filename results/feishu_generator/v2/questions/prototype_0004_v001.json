@@ -1,0 +1,490 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0004_v001.json",
+  "episode_id": "ep_prototype_0004_v001",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "source_credibility",
+    "implicit_user_reference"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 11,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 13:05，在“自动初审机制风险评估”讨论中，最终规则集合是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:05:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "所有录用审批由招聘经理手动操作，评分仅作参考",
+        "answer_type": "text",
+        "answer_display": "所有录用审批由招聘经理手动操作，评分仅作参考"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.final_rules"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T13:05:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "在“自动初审机制风险评估”讨论中，谁拍板移除机制？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:05:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_director",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_director",
+          "name": null,
+          "role": "招聘总监"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.decider"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“自动初审机制风险评估”讨论中，移除的原因是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:05:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "假绿风险且零使用",
+        "answer_type": "text",
+        "answer_display": "假绿风险且零使用"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.reason"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012",
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 13:05，在“自动初审机制风险评估”讨论中，实现是否已同步修改？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:05:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.implementation_synced"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T13:05:00+08:00"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“自动初审机制需求与实现”讨论中，2026-09-04 09:31的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:05:00+08:00",
+        "thread_ids": [
+          "t_req",
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已实现",
+        "answer_type": "text",
+        "answer_display": "已实现"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_05.truth.final_rules"
+      ],
+      "evidence_event_ids": [
+        "ev_02",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-04T09:31:00+08:00",
+        "before_event_id": "ev_05"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 09:02，在“自动初审机制需求与实现”讨论中的“requirement_clarification”阶段，关于需求澄清进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T09:02:00+08:00",
+        "thread_ids": [
+          "t_req"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待确认",
+        "answer_type": "text",
+        "answer_display": "待确认"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T09:02:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 09:31，在“自动初审机制需求与实现”讨论中的“implementation_update”阶段，实现状态是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T09:31:00+08:00",
+        "thread_ids": [
+          "t_req"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已上线",
+        "answer_type": "text",
+        "answer_display": "已上线"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.implementation_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T09:31:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "bot_writeback_pollution",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 11:02，在“自动初审机制风险评估”讨论中的“usage_query”阶段，Bot 输出正确性是否成立？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T11:02:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.bot_correctness"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0006",
+        "m_0007",
+        "m_0008"
+      ],
+      "required_distinctions": [
+        "source_credibility"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T11:02:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 12:03，在“自动初审机制风险评估”讨论中的“risk_correction”阶段，原因是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T12:03:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "评分为空时默认通过初审",
+        "answer_type": "text",
+        "answer_display": "评分为空时默认通过初审"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.cause"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T12:03:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 13:04，在“自动初审机制风险评估”讨论中的“removal_decision”阶段，最终决策是什么？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:04:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "移除自动初审机制",
+        "answer_type": "text",
+        "answer_display": "移除自动初审机制"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.decision"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T13:04:00+08:00"
+      },
+      "question_id": "q_0010"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v001",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-04 13:04，在“自动初审机制风险评估”讨论中的“removal_decision”阶段，该阶段进展到哪一步？",
+      "query_context": {
+        "query_user_id": "u_recruiter",
+        "query_user_name": null,
+        "query_user_role": "招聘经理",
+        "query_time": "2026-09-04T13:04:00+08:00",
+        "thread_ids": [
+          "t_risk"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已收敛",
+        "answer_type": "text",
+        "answer_display": "已收敛"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015",
+        "m_0016",
+        "m_0017"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-04T13:04:00+08:00"
+      },
+      "question_id": "q_0011"
+    }
+  ]
+}

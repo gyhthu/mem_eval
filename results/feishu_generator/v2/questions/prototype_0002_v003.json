@@ -1,0 +1,267 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0002_v003.json",
+  "episode_id": "ep_prototype_0002_v003",
+  "declared_memory_question_types": [
+    "state_update",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 6,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“DK-2026-0917 续约折扣风险复核”讨论中，批次是否直接收口？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:48:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.direct_close"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03",
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-18 09:48，在“DK-2026-0917 续约折扣风险复核”讨论中，是否存在待处置项？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:48:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": 0,
+        "answer_type": "number",
+        "answer_display": 0
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.pending_items_count"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0004",
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-18T09:48:00+08:00"
+      },
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "在“DK-2026-0917 续约折扣风险复核”讨论中，谁完成最终核验？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:48:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_reviewer",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_reviewer",
+          "name": null,
+          "role": "风控复核员"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.final_verifier"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“DK-2026-0917 续约折扣风险复核”讨论中，2026-09-18 09:02的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:48:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待复核",
+        "answer_type": "text",
+        "answer_display": "待复核"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_03.truth.final_verifier"
+      ],
+      "evidence_event_ids": [
+        "ev_01",
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0007",
+        "m_0008",
+        "m_0009"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-18T09:02:00+08:00",
+        "before_event_id": "ev_03"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-18 09:32，在“DK-2026-0917 续约折扣风险复核”讨论中的“no_pending_confirmation”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:32:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待最终审批",
+        "answer_type": "text",
+        "answer_display": "待最终审批"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-18T09:32:00+08:00"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0002_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-18 09:47，在“DK-2026-0917 续约折扣风险复核”讨论中的“direct_closure”阶段，最终状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "客户成功经理",
+        "query_time": "2026-09-18T09:47:00+08:00",
+        "thread_ids": [
+          "t_renewal"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已收口",
+        "answer_type": "text",
+        "answer_display": "已收口"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.final_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-18T09:47:00+08:00"
+      },
+      "question_id": "q_0006"
+    }
+  ]
+}

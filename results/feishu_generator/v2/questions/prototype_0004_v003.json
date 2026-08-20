@@ -1,0 +1,429 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0004_v003.json",
+  "episode_id": "ep_prototype_0004_v003",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "source_credibility",
+    "implicit_user_reference"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 10,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 13:03，在“机制移除与规则确认”讨论中，最终规则集合是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T13:03:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试",
+        "answer_type": "text",
+        "answer_display": "所有候选人必须完成初试且通过后进入复试，不允许自动跳过初试"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.final_rules"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T13:03:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "在“机制移除与规则确认”讨论中，谁拍板移除机制？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T13:03:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_vp",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_vp",
+          "name": null,
+          "role": "招聘负责人"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.decision_maker"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“机制移除与规则确认”讨论中，移除的原因是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T13:03:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "存在假绿风险且实际使用次数为零",
+        "answer_type": "text",
+        "answer_display": "存在假绿风险且实际使用次数为零"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.reason"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 13:03，在“机制移除与规则确认”讨论中，实现是否已同步修改？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T13:03:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.implementation_synced"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0013",
+        "m_0014",
+        "m_0015"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T13:03:00+08:00"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [
+        "state_update"
+      ],
+      "question": "在“机制移除与规则确认”讨论中，2026-09-20 12:02的更新完成后、最终变更发生前，这个事项当时是什么状态？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T13:03:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已确认",
+        "answer_type": "text",
+        "answer_display": "已确认"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.status"
+      ],
+      "context_paths": [
+        "event:ev_05.truth.final_rules"
+      ],
+      "evidence_event_ids": [
+        "ev_04",
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012",
+        "m_0013",
+        "m_0014",
+        "m_0015"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "historical_snapshot",
+        "snapshot_time": "2026-09-20T12:02:00+08:00",
+        "before_event_id": "ev_05"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 09:03，在“初试自动通过机制”讨论中的“requirement_clarify”阶段，关于该阶段进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T09:03:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "待确认",
+        "answer_type": "text",
+        "answer_display": "待确认"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002",
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T09:03:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 09:46，在“初试自动通过机制”讨论中的“implementation_link”阶段，实现状态是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T09:46:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "已完成",
+        "answer_type": "text",
+        "answer_display": "已完成"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.implementation_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T09:46:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "knowledge_absence",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 11:02，在“初试自动通过机制”讨论中的“risk_discovery”阶段，关于风险确认进展是否已有确定信息？当时的记录是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T11:02:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "风险待确认",
+        "answer_type": "text",
+        "answer_display": "风险待确认"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009"
+      ],
+      "required_distinctions": [
+        "knowledge_absence"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T11:02:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "time_commitment",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 12:02，在“机制移除与规则确认”讨论中的“removal_decision”阶段，生效时间是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T12:02:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "2026-09-01T12:00:00+08:00",
+        "answer_type": "text",
+        "answer_display": "2026-09-01T12:00:00+08:00"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.effective_at"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T12:02:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0004_v003",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-20 12:02，在“机制移除与规则确认”讨论中的“removal_decision”阶段，最终决策是什么？",
+      "query_context": {
+        "query_user_id": "u_hr",
+        "query_user_name": null,
+        "query_user_role": "人力资源业务负责人",
+        "query_time": "2026-09-20T12:02:00+08:00",
+        "thread_ids": [
+          "t_remove"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "移除自动通过机制",
+        "answer_type": "text",
+        "answer_display": "移除自动通过机制"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.decision"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0010",
+        "m_0011",
+        "m_0012"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-20T12:02:00+08:00"
+      },
+      "question_id": "q_0010"
+    }
+  ]
+}

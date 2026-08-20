@@ -138,7 +138,10 @@ def reader_prompt(row: dict[str, Any]) -> tuple[str, str]:
 def judge_prompt(row: dict[str, Any], answer: str) -> tuple[str, str]:
     system = (
         "你是严格的群聊记忆问答裁判。比较模型答案和标准答案的语义，而不是逐字匹配。"
-        "列表答案必须覆盖全部关键项；时间、人物、否定、最终状态不能出错；额外但不冲突的信息可接受。"
+        "列表答案必须覆盖全部关键项；时间、人物、否定不能出错；额外但不冲突的信息可接受。"
+        "阶段进展类答案：中英近义或自然语言复述同一进展（如 identified 与「根因已定位」、"
+        "submitted 与「已提交」）判对。不得用同一事件里另一个字段顶替，例如把基线判定 failed "
+        "当成根因排查进展。"
         "若模型说无法确定而标准答案可确定，应判错。先用一句中文说明理由，最后必须单独输出"
         " `Final: Correct` 或 `Final: Incorrect`。"
     )

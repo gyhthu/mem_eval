@@ -1,0 +1,421 @@
+{
+  "source_episode": "/Users/gaoyinghua/Documents/ChatGPT/groupmembench/results/feishu_generator/v2/episodes/prototype_0003_v002.json",
+  "episode_id": "ep_prototype_0003_v002",
+  "declared_memory_question_types": [
+    "state_update",
+    "multi_hop",
+    "source_credibility"
+  ],
+  "question_generator_version": "v2_status_progress_2026_08_19",
+  "question_count": 10,
+  "questions": [
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 11:18，在“状态回写收口”讨论中，任务是否已收口？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:18:00+08:00",
+        "thread_ids": [
+          "t_closure"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "pending_retry",
+        "answer_type": "text",
+        "answer_display": "pending_retry"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.task_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0011",
+        "m_0012",
+        "m_0013"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T11:18:00+08:00"
+      },
+      "question_id": "q_0001"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "multi_hop",
+      "secondary_tags": [],
+      "question": "在“状态回写收口”讨论中，中断原因是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:18:00+08:00",
+        "thread_ids": [
+          "t_closure"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "第三方反馈服务API超时",
+        "answer_type": "text",
+        "answer_display": "第三方反馈服务API超时"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.interruption_reason"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [],
+      "question_id": "q_0002"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 11:18，在“启动闪退反馈修复与排期”讨论中，补测是否已确认？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:18:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "passed",
+        "answer_type": "text",
+        "answer_display": "passed"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.test_result"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T11:18:00+08:00"
+      },
+      "question_id": "q_0003"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 11:18，在“状态回写收口”讨论中，是否需要重试收口？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:18:00+08:00",
+        "thread_ids": [
+          "t_closure"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": true,
+        "answer_type": "boolean",
+        "answer_display": true
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.retry_planned"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0011",
+        "m_0012",
+        "m_0013"
+      ],
+      "required_distinctions": [
+        "time"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T11:18:00+08:00"
+      },
+      "question_id": "q_0004"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 09:01，在“启动闪退反馈修复与排期”讨论中的“design_review_finding”阶段，复核结果是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T09:01:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "failed",
+        "answer_type": "text",
+        "answer_display": "failed"
+      },
+      "oracle_paths": [
+        "event:ev_01.truth.review_result"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_01"
+      ],
+      "evidence_message_ids": [
+        "m_0001",
+        "m_0002"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T09:01:00+08:00"
+      },
+      "question_id": "q_0005"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "source_credibility",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 09:16，在“启动闪退反馈修复与排期”讨论中的“recheck_test_supplement”阶段，复测负责人是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T09:16:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "u_qa",
+        "answer_type": "participant",
+        "answer_display": {
+          "participant_id": "u_qa",
+          "name": null,
+          "role": "测试工程师"
+        }
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.retest_owner"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [
+        "user_identity"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T09:16:00+08:00"
+      },
+      "question_id": "q_0006"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 09:16，在“启动闪退反馈修复与排期”讨论中的“recheck_test_supplement”阶段，补测状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T09:16:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "planned",
+        "answer_type": "text",
+        "answer_display": "planned"
+      },
+      "oracle_paths": [
+        "event:ev_02.truth.supplement_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_02"
+      ],
+      "evidence_message_ids": [
+        "m_0003",
+        "m_0004"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T09:16:00+08:00"
+      },
+      "question_id": "q_0007"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 10:31，在“启动闪退反馈修复与排期”讨论中的“retest_confirmed”阶段，修复状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T10:31:00+08:00",
+        "thread_ids": [
+          "t_main"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "confirmed",
+        "answer_type": "text",
+        "answer_display": "confirmed"
+      },
+      "oracle_paths": [
+        "event:ev_03.truth.fix_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_03"
+      ],
+      "evidence_message_ids": [
+        "m_0005",
+        "m_0006"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T10:31:00+08:00"
+      },
+      "question_id": "q_0008"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 11:03，在“状态回写收口”讨论中的“external_interruption”阶段，回写状态是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:03:00+08:00",
+        "thread_ids": [
+          "t_closure"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "failed",
+        "answer_type": "text",
+        "answer_display": "failed"
+      },
+      "oracle_paths": [
+        "event:ev_04.truth.write_status"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_04"
+      ],
+      "evidence_message_ids": [
+        "m_0007",
+        "m_0008",
+        "m_0009",
+        "m_0010"
+      ],
+      "required_distinctions": [
+        "time",
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T11:03:00+08:00"
+      },
+      "question_id": "q_0009"
+    },
+    {
+      "episode_id": "ep_prototype_0003_v002",
+      "primary_memory_type": "state_update",
+      "secondary_tags": [],
+      "question": "截至2026-09-11 11:17，在“状态回写收口”讨论中的“retry_pending_closure”阶段，重试时间窗口是什么？",
+      "query_context": {
+        "query_user_id": "u_owner",
+        "query_user_name": null,
+        "query_user_role": "产品经理",
+        "query_time": "2026-09-11T11:17:00+08:00",
+        "thread_ids": [
+          "t_closure"
+        ],
+        "visibility_scope": "group"
+      },
+      "oracle": {
+        "answer": "15分钟后",
+        "answer_type": "text",
+        "answer_display": "15分钟后"
+      },
+      "oracle_paths": [
+        "event:ev_05.truth.retry_window"
+      ],
+      "context_paths": [],
+      "evidence_event_ids": [
+        "ev_05"
+      ],
+      "evidence_message_ids": [
+        "m_0011",
+        "m_0012",
+        "m_0013"
+      ],
+      "required_distinctions": [
+        "state_version"
+      ],
+      "temporal_scope": {
+        "mode": "as_of",
+        "as_of": "2026-09-11T11:17:00+08:00"
+      },
+      "question_id": "q_0010"
+    }
+  ]
+}

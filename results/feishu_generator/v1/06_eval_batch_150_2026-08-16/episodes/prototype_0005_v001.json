@@ -1,0 +1,523 @@
+{
+  "episode_id": "ep_prototype_0005_v001",
+  "scenario": "线下活动场地和预算协调：年会场地规则回归与真模型收口",
+  "start_time": "2026-09-05T09:00:00+08:00",
+  "prototype_trace": {
+    "prototype_id": "prototype_0005",
+    "source_task_ids": [
+      "task_0017"
+    ],
+    "memory_question_types": [
+      "state_update",
+      "multi_hop",
+      "knowledge_absence"
+    ],
+    "variation_hint": "变体编号 1；使用“线下活动场地和预算协调”领域。保留原型因果结构，并让至少两个事件包含可由代码读取的明确 truth 状态。"
+  },
+  "participants": [
+    {
+      "id": "u_owner",
+      "kind": "human",
+      "role": "活动负责人",
+      "responsibility": "提供历届活动场地方案作为回归样本，并对最终提交结果拍板",
+      "knowledge_boundary": "熟悉历届场地选择结果和总预算；不了解规则引擎内部判据配置"
+    },
+    {
+      "id": "u_venue",
+      "kind": "human",
+      "role": "场地顾问",
+      "responsibility": "复盘场地容量与设施匹配要求，参与判据补齐",
+      "knowledge_boundary": "熟悉场馆容量、交通和音视频条件；不掌握财务预算上限"
+    },
+    {
+      "id": "u_finance",
+      "kind": "human",
+      "role": "财务",
+      "responsibility": "核定活动场地预算区间和审批口径，参与预算判据补齐",
+      "knowledge_boundary": "掌握预算总额和成本分摊规则；不了解场地技术参数"
+    },
+    {
+      "id": "u_ops",
+      "kind": "human",
+      "role": "运营专员",
+      "responsibility": "协调活动时间与执行资源，跟进回归验证进展和收口事项",
+      "knowledge_boundary": "知道活动日期和规模；不清楚规则引擎和模型训练细节"
+    },
+    {
+      "id": "bot_rule",
+      "kind": "bot",
+      "role": "场地规则 Bot",
+      "responsibility": "基于已配置规则执行场地样本回归、输出失败原因和验证结果",
+      "knowledge_boundary": "仅可访问规则库和当前回归样本；不访问预算审批内部流程和真模型重炼任务"
+    },
+    {
+      "id": "bot_project",
+      "kind": "bot",
+      "role": "项目 Bot",
+      "responsibility": "记录回归任务状态、行动项和后台待收口事项",
+      "knowledge_boundary": "仅读取群内确认的任务状态和行动项；不读取规则引擎内部判据"
+    }
+  ],
+  "threads": [
+    {
+      "thread_id": "t_venue",
+      "title": "历史场地规则回归与真模型收口"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "ev_01",
+      "type": "historical_samples_provided",
+      "prompt_type": "new_topic",
+      "thread_id": "t_venue",
+      "offset_minutes": 0,
+      "actors": [
+        "u_owner",
+        "bot_rule"
+      ],
+      "truth": {
+        "sample_count": 8,
+        "sample_scope": "2023/2024年度大会A/B馆合同与审批结论",
+        "status": "待回归"
+      },
+      "communication_goal": "活动负责人提供历届场地审批样本，要求规则 Bot 先执行基线回归",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "historical_samples",
+          "value": "8个样本：2023/2024年度大会A/B馆合同与审批结论"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "regression_status",
+          "value": "待回归"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_02",
+      "type": "baseline_failure",
+      "prompt_type": "bot_response",
+      "thread_id": "t_venue",
+      "offset_minutes": 25,
+      "actors": [
+        "bot_rule",
+        "u_owner"
+      ],
+      "truth": {
+        "baseline_status": "fail",
+        "failed_count": 6,
+        "total_count": 8,
+        "symptom": "旧样本无法进入沙箱",
+        "initial_assumption": "规则文件版本过期",
+        "next_action": "人工复核根因"
+      },
+      "communication_goal": "规则 Bot 返回基线回归结果：8个样本中6个失败，并给出初步假设，触发根因定位",
+      "message_count": {
+        "min": 2,
+        "max": 3
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "baseline_result",
+          "value": "fail 6/8"
+        },
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "initial_assumption",
+          "value": "规则文件版本过期"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "root_cause",
+          "value": "待定位"
+        }
+      ]
+    },
+    {
+      "event_id": "ev_03",
+      "type": "root_cause_correction",
+      "prompt_type": "disagreement_correction",
+      "thread_id": "t_venue",
+      "offset_minutes": 55,
+      "actors": [
+        "u_venue",
+        "u_finance",
+        "u_owner"
+      ],
+      "truth": {
+        "root_cause": "判定族缺少[容量>=300]与[预算区间匹配]两条判据",
+        "initial_assumption": "规则文件版本过期",
+        "corrected": true,
+        "status": "根因已定位，待补判据"
+      },
+      "communication_goal": "场地顾问和财务纠正规则 Bot 的初步假设，确认根因是判定族缺失，并明确需补两条判据",
+      "message_count": {
+        "min": 3,
+        "max": 5
+      },
+      "ledger_ops": [
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "root_cause",
+          "value": "缺少容量与预算区间两条判据"
+        },
+        {
+          "section": "corrections",
+          "op": "set",
+          "key": "initial_assumption",
+          "value": "规则文件版本过期"
+        },
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "to_add_families",
+          "value": [
+            "capacity>=300",
+            "budget_interval_match"
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "ev_04",
+      "type": "validation_passed",
+      "prompt_type": "bot_response",
+      "thread_id": "t_venue",
+      "offset_minutes": 100,
+      "actors": [
+        "bot_rule",
+        "u_owner",
+        "u_ops"
+      ],
+      "truth": {
+        "validation_status": "pass",
+        "passed_count": 8,
+        "total_count": 8,
+        "added_families": [
+          "capacity>=300",
+          "budget_interval_match"
+        ]
+      },
+      "communication_goal": "规则 Bot 在补齐判据后执行端到端验证，确认 8 个历史样本全部通过",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "bot_outputs",
+          "op": "set",
+          "key": "e2e_validation",
+          "value": "pass 8/8"
+        },
+        {
+          "section": "facts",
+          "op": "set",
+          "key": "added_families",
+          "value": [
+            "capacity>=300",
+            "budget_interval_match"
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "ev_05",
+      "type": "handoff_closure",
+      "prompt_type": "confirmation_closure",
+      "thread_id": "t_venue",
+      "offset_minutes": 130,
+      "actors": [
+        "u_owner",
+        "u_ops",
+        "bot_project"
+      ],
+      "truth": {
+        "submission_status": "已提交确定性验证结果",
+        "retrain_status": "后台待收口",
+        "retrain_scope": "真模型重炼不阻塞本次上线",
+        "next_review": "TBD"
+      },
+      "communication_goal": "活动负责人确认确定性验证通过并提交，同时将真模型重炼列为后台待收口事项",
+      "message_count": {
+        "min": 2,
+        "max": 4
+      },
+      "ledger_ops": [
+        {
+          "section": "decisions",
+          "op": "set",
+          "key": "submission_status",
+          "value": "已提交"
+        },
+        {
+          "section": "commitments",
+          "op": "set",
+          "key": "retrain_followup",
+          "value": "真模型重炼后台待收口"
+        },
+        {
+          "section": "open_questions",
+          "op": "set",
+          "key": "retrain_status",
+          "value": "后台待收口"
+        }
+      ]
+    }
+  ],
+  "oracle_bindings": [
+    {
+      "hook": "端到端验证是否通过",
+      "answer_path": "event:ev_04.truth.validation_status",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    },
+    {
+      "hook": "根因是什么",
+      "answer_path": "event:ev_03.truth.root_cause",
+      "evidence_event_ids": [
+        "ev_03"
+      ]
+    },
+    {
+      "hook": "真模型重炼是否完成",
+      "answer_path": "event:ev_05.truth.retrain_status",
+      "evidence_event_ids": [
+        "ev_05"
+      ]
+    },
+    {
+      "hook": "哪些判定族被补齐",
+      "answer_path": "event:ev_04.truth.added_families",
+      "evidence_event_ids": [
+        "ev_04"
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "m_0001",
+      "event_id": "ev_01",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T09:00:00+08:00",
+      "content": "@bot_rule 历届年会场地审批样本已传共享目录，8 个，含 2023/2024 A/B 馆合同和审批结论。有空先跑一版基线回归？",
+      "reply_to": null,
+      "mentions": [
+        "bot_rule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0002",
+      "event_id": "ev_01",
+      "thread_id": "t_venue",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-05T09:01:00+08:00",
+      "content": "收到，样本数 8，范围是 2023/2024 A/B 馆合同和审批结论。我用当前规则跑基线回归，结果出来同步群里。",
+      "reply_to": "m_0001",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0003",
+      "event_id": "ev_01",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T09:02:00+08:00",
+      "content": "好，跑完先列失败项，重点看审批结论不一致的。",
+      "reply_to": "m_0002",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0004",
+      "event_id": "ev_02",
+      "thread_id": "t_venue",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-05T09:25:00+08:00",
+      "content": "基线回归出结果了：8 个样本，6 个失败，都是进不了沙箱。翻了规则文件，初步怀疑是版本过期。建议人工复核根因。",
+      "reply_to": "m_0003",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0005",
+      "event_id": "ev_02",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T09:26:00+08:00",
+      "content": "6 个全挂，那就不只是样本的问题了。你先保留现场，我拉预算和历史合同对照，确认不是审批结论差异再说。",
+      "reply_to": "m_0004",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0006",
+      "event_id": "ev_03",
+      "thread_id": "t_venue",
+      "author_id": "u_venue",
+      "timestamp": "2026-09-05T09:55:00+08:00",
+      "content": "@bot_rule 版本过期这个假设先放一下。我刚对照了失败样本的合同，容量都≥300，但规则结果没体现，更像是判定族里根本没有容量≥300这条判据。",
+      "reply_to": "m_0004",
+      "mentions": [
+        "bot_rule"
+      ],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0007",
+      "event_id": "ev_03",
+      "thread_id": "t_venue",
+      "author_id": "u_finance",
+      "timestamp": "2026-09-05T09:56:00+08:00",
+      "content": "我也对了一遍预算口径。失败项的合同预算都在审批区间内，输出却不匹配，和版本没关系，是预算区间匹配这一条缺失。",
+      "reply_to": "m_0006",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0008",
+      "event_id": "ev_03",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T09:57:00+08:00",
+      "content": "好，根因定为判定族缺失，不是版本过期。先补[容量>=300]和[预算区间匹配]两条，补完重跑回归。",
+      "reply_to": "m_0007",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0009",
+      "event_id": "ev_04",
+      "thread_id": "t_venue",
+      "author_id": "bot_rule",
+      "timestamp": "2026-09-05T10:40:00+08:00",
+      "content": "回归重跑结果：8 个样本全部通过。",
+      "reply_to": "m_0008",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    },
+    {
+      "message_id": "m_0010",
+      "event_id": "ev_04",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T10:41:00+08:00",
+      "content": "确认，8/8 全过，这轮收口。",
+      "reply_to": "m_0009",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0011",
+      "event_id": "ev_04",
+      "thread_id": "t_venue",
+      "author_id": "u_ops",
+      "timestamp": "2026-09-05T10:42:00+08:00",
+      "content": "我同步到执行表，场地审批按这个结果对齐。",
+      "reply_to": "m_0010",
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0012",
+      "event_id": "ev_05",
+      "thread_id": "t_venue",
+      "author_id": "u_owner",
+      "timestamp": "2026-09-05T11:10:00+08:00",
+      "content": "验证结果我提交了，8/8 通过。真模型重炼放后台待收口，不阻塞本次上线，下次评审时间先不定。",
+      "reply_to": null,
+      "mentions": [],
+      "message_kind": "human",
+      "write_policy": "none",
+      "correctness": "not_applicable"
+    },
+    {
+      "message_id": "m_0013",
+      "event_id": "ev_05",
+      "thread_id": "t_venue",
+      "author_id": "bot_project",
+      "timestamp": "2026-09-05T11:11:00+08:00",
+      "content": "收到，记录：验证已提交 8/8；真模型重炼后台待收口，不阻塞本次上线；下次评审 TBD。",
+      "reply_to": "m_0012",
+      "mentions": [],
+      "message_kind": "bot",
+      "write_policy": "confirmed",
+      "correctness": "correct"
+    }
+  ],
+  "final_ledger": {
+    "facts": {
+      "historical_samples": "8个样本：2023/2024年度大会A/B馆合同与审批结论",
+      "root_cause": "缺少容量与预算区间两条判据",
+      "added_families": [
+        "capacity>=300",
+        "budget_interval_match"
+      ]
+    },
+    "decisions": {
+      "to_add_families": [
+        "capacity>=300",
+        "budget_interval_match"
+      ],
+      "submission_status": "已提交"
+    },
+    "open_questions": {
+      "regression_status": "待回归",
+      "root_cause": "待定位",
+      "retrain_status": "后台待收口"
+    },
+    "commitments": {
+      "retrain_followup": "真模型重炼后台待收口"
+    },
+    "bot_outputs": {
+      "baseline_result": "fail 6/8",
+      "initial_assumption": "规则文件版本过期",
+      "e2e_validation": "pass 8/8"
+    },
+    "corrections": {
+      "initial_assumption": "规则文件版本过期"
+    }
+  },
+  "generator": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "fact_audit": true
+  }
+}

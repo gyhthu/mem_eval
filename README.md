@@ -2,10 +2,10 @@
 
 一个可在本机或公司内网运行的群聊 Memory 评测平台。仓库自带：
 
-- 172 道飞书群聊 Memory 问题
+- 172 道飞书群聊 Memory 问题（默认 v2 题面；v1 题面及原榜一并保留）
 - 18 条 episode 历史轨迹、284 条消息
-- BM25 RAG、Mem0、TeamAgent Memory、MindMemOS 四种方法
-- BM25、Mem0、TeamAgent 的 Top K = 3 / 10 完整预置结果、Badcase 和 Leaderboard
+- BM25 RAG、Mem0、TeamAgent Memory、MindMemOS、EverOS
+- v1 / v2 两套 Leaderboard 的完整预置结果和 Badcase
 - 可选的 Reader + LLM Judge 端到端评测
 
 只浏览题库、预置结果和 Leaderboard **不需要 API Key，也不访问公网**。
@@ -83,8 +83,9 @@ MindMemOS 本身是独立服务，依赖 Qdrant、Neo4j、Kafka 和模型服务�
 
 ## 现场演示顺序（约 5 分钟）
 
-1. 打开“题库”：展示 172 题、题型筛选、标准答案和 Oracle 证据消息。
-2. 打开“Leaderboard”：切换 `Top K = 3` 和 `Top K = 10`，比较不同 Memory 方法与检索配置。
+1. 打开“题库”和“v2 题集说明”：展示 172 题，以及相对 v1 的题面/时间/Judge 改动。
+2. 打开“Leaderboard”：先看 v1 原榜，再切到 v2 题集；Top K = 3 / 10 分开比较。
+   方法之间看 Answer Accuracy。EverOS 的 Hit@K 按 event 整组计分，会出现 Hit 很高但 Acc 没那么高的情况。
 3. 打开“结果与 Badcase”：选择一条完整结果，展示总体指标、分类指标和具体 Badcase。
 4. 打开“启动评测”：取消勾选 Reader + Judge，现场跑一次 BM25（无需模型、几十秒内完成）。
 5. 若已接好内网模型，再勾选 Reader + Judge 做少量或完整端到端评测。
